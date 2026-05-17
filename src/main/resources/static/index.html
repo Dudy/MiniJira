@@ -113,23 +113,23 @@
             <h2>Issue anlegen</h2>
             <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
         </div>
-        <form id="createIssueForm" class="issue-form issue-form-create">
-            <div class="form-row">
-                <label for="createPriority">Priorität</label>
-                <input id="createPriority" name="priority" type="number" min="1" max="5" value="3" required>
-            </div>
-            <div class="form-row">
-                <label for="createTitle">Titel</label>
-                <input id="createTitle" name="title" required maxlength="200">
-            </div>
-            <div class="form-row form-row-textarea">
-                <label for="createDescription">Beschreibung</label>
-                <textarea id="createDescription" name="description" required maxlength="20000"></textarea>
-            </div>
-            <div class="form-row form-row-users">
-                <label>Bearbeiter</label>
+        <form id="createIssueForm" class="issue-form issue-form-dialog">
+            <fieldset class="field-frame">
+                <legend>Priorität</legend>
+                <input id="createPriority" name="priority" type="number" min="1" max="5" value="3" required placeholder="3" aria-label="Priorität">
+            </fieldset>
+            <fieldset class="field-frame">
+                <legend>Titel</legend>
+                <input id="createTitle" name="title" required maxlength="200" placeholder="Kurz und präzise" aria-label="Titel">
+            </fieldset>
+            <fieldset class="field-frame field-frame-textarea">
+                <legend>Beschreibung</legend>
+                <textarea id="createDescription" name="description" required maxlength="20000" placeholder="Was ist zu tun?" aria-label="Beschreibung"></textarea>
+            </fieldset>
+            <fieldset class="user-frame">
+                <legend>Bearbeiter</legend>
                 <div id="createWorkerUsers" class="user-checkboxes"></div>
-            </div>
+            </fieldset>
             <div class="dialog-actions">
                 <button type="button" data-dialog-close>Abbrechen</button>
                 <button>Issue anlegen</button>
@@ -144,14 +144,20 @@
             <h2>Issue bearbeiten</h2>
             <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
         </div>
-        <form id="editIssueForm" class="issue-form">
+        <form id="editIssueForm" class="issue-form issue-form-dialog">
             <input name="id" type="hidden">
-            <label>Title <input name="title" required maxlength="200"></label>
-            <label>Description <textarea name="description" required maxlength="20000"></textarea></label>
-            <div class="form-row form-row-users">
-                <label>Bearbeiter</label>
+            <fieldset class="field-frame">
+                <legend>Titel</legend>
+                <input name="title" required maxlength="200" placeholder="Kurz und präzise" aria-label="Titel">
+            </fieldset>
+            <fieldset class="field-frame field-frame-textarea">
+                <legend>Beschreibung</legend>
+                <textarea name="description" required maxlength="20000" placeholder="Was ist zu tun?" aria-label="Beschreibung"></textarea>
+            </fieldset>
+            <fieldset class="user-frame">
+                <legend>Bearbeiter</legend>
                 <div id="editWorkerUsers" class="user-checkboxes"></div>
-            </div>
+            </fieldset>
             <div class="dialog-actions">
                 <button type="button" data-dialog-close>Abbrechen</button>
                 <button>Speichern</button>
