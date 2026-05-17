@@ -48,6 +48,54 @@ let issueFilterState = {author: null, worker: null, status: null, priority: null
 let issueListCache = [];
 let openIssueFilterField = null;
 
+const ISSUE_STATUS = Object.freeze({
+    TODO: 'TODO',
+    DOING: 'DOING',
+    TESTING: 'TESTING',
+    REVIEWING: 'REVIEWING',
+    DONE: 'DONE'
+});
+
+const ISSUE_STATUS_OPTIONS = [
+    {value: ISSUE_STATUS.TODO, label: 'to do'},
+    {value: ISSUE_STATUS.DOING, label: 'doing'},
+    {value: ISSUE_STATUS.TESTING, label: 'testing'},
+    {value: ISSUE_STATUS.REVIEWING, label: 'reviewing'},
+    {value: ISSUE_STATUS.DONE, label: 'done'}
+];
+
+const ISSUE_PRIORITY = Object.freeze({
+    VERY_HIGH: 'VERY_HIGH',
+    HIGH: 'HIGH',
+    MEDIUM: 'MEDIUM',
+    LOW: 'LOW',
+    VERY_LOW: 'VERY_LOW'
+});
+
+const ISSUE_PRIORITY_OPTIONS = [
+    {value: ISSUE_PRIORITY.VERY_HIGH, label: 'Sehr hoch'},
+    {value: ISSUE_PRIORITY.HIGH, label: 'Hoch'},
+    {value: ISSUE_PRIORITY.MEDIUM, label: 'Mittel'},
+    {value: ISSUE_PRIORITY.LOW, label: 'Niedrig'},
+    {value: ISSUE_PRIORITY.VERY_LOW, label: 'Sehr niedrig'}
+];
+
+const ISSUE_STATUS_ORDER = Object.freeze({
+    [ISSUE_STATUS.TODO]: 0,
+    [ISSUE_STATUS.DOING]: 1,
+    [ISSUE_STATUS.TESTING]: 2,
+    [ISSUE_STATUS.REVIEWING]: 3,
+    [ISSUE_STATUS.DONE]: 4
+});
+
+const ISSUE_PRIORITY_ORDER = Object.freeze({
+    [ISSUE_PRIORITY.VERY_HIGH]: 0,
+    [ISSUE_PRIORITY.HIGH]: 1,
+    [ISSUE_PRIORITY.MEDIUM]: 2,
+    [ISSUE_PRIORITY.LOW]: 3,
+    [ISSUE_PRIORITY.VERY_LOW]: 4
+});
+
 function eyeIcon(isVisible) {
     return isVisible
         ? `
@@ -237,37 +285,11 @@ function clearUserSelections() {
 }
 
 function priorityLabel(priority) {
-    switch (Number(priority)) {
-        case 1:
-            return 'Sehr hoch';
-        case 2:
-            return 'Hoch';
-        case 3:
-            return 'Mittel';
-        case 4:
-            return 'Niedrig';
-        case 5:
-            return 'Sehr niedrig';
-        default:
-            return String(priority);
-    }
+    return ISSUE_PRIORITY_OPTIONS.find(option => option.value === String(priority))?.label ?? String(priority);
 }
 
 function statusLabel(status) {
-    switch (Number(status)) {
-        case 1:
-            return 'to do';
-        case 2:
-            return 'doing';
-        case 3:
-            return 'testing';
-        case 4:
-            return 'reviewing';
-        case 5:
-            return 'done';
-        default:
-            return String(status);
-    }
+    return ISSUE_STATUS_OPTIONS.find(option => option.value === String(status))?.label ?? String(status);
 }
 
 function getIssueSortValue(issue, field) {
@@ -284,9 +306,9 @@ function getIssueSortValue(issue, field) {
         case 'title':
             return issue.title ?? '';
         case 'status':
-            return issue.status ?? 0;
+            return ISSUE_STATUS_ORDER[issue.status] ?? Number.MAX_SAFE_INTEGER;
         case 'priority':
-            return issue.priority ?? 0;
+            return ISSUE_PRIORITY_ORDER[issue.priority] ?? Number.MAX_SAFE_INTEGER;
         default:
             return issue.id ?? 0;
     }
@@ -381,16 +403,18 @@ const issueFilterConfig = {
         optionLabel: value => value
     },
     worker: {
-        label: 'Worker',
+        label: 'Bearbeiter',
         optionLabel: value => value
     },
     status: {
         label: 'Status',
-        optionLabel: value => statusLabel(value)
+        options: ISSUE_STATUS_OPTIONS.map(option => option.value),
+        optionLabel: value => ISSUE_STATUS_OPTIONS.find(option => option.value === value)?.label ?? value
     },
     priority: {
         label: 'Priorität',
-        optionLabel: value => priorityLabel(value)
+        options: ISSUE_PRIORITY_OPTIONS.map(option => option.value),
+        optionLabel: value => ISSUE_PRIORITY_OPTIONS.find(option => option.value === value)?.label ?? value
     }
 };
 
@@ -403,15 +427,19 @@ function getIssueFilterValues(issue, field) {
                 .map(worker => worker.username)
                 .filter(value => value !== '');
         case 'status':
-            return [String(issue.status ?? '')];
+            return [issue.status ?? ''];
         case 'priority':
-            return [String(issue.priority ?? '')];
+            return [issue.priority ?? ''];
         default:
             return [];
     }
 }
 
 function getIssueFilterOptions(field) {
+    const config = issueFilterConfig[field];
+    if (config?.options) {
+        return [...config.options];
+    }
     const seen = new Map();
     const selected = issueFilterState[field];
     for (const issue of issueListCache) {
@@ -429,9 +457,6 @@ function getIssueFilterOptions(field) {
         }
     }
     const values = [...seen.values()];
-    if (field === 'status' || field === 'priority') {
-        return values.sort((left, right) => Number.parseInt(left, 10) - Number.parseInt(right, 10));
-    }
     return values.sort((left, right) => left.localeCompare(right, 'de', {numeric: true, sensitivity: 'base'}));
 }
 
@@ -479,13 +504,10 @@ function renderIssueFilterMenu(field) {
     const allLabel = document.createElement('label');
     allLabel.className = 'user-checkbox filter-option filter-option-all';
     allLabel.dataset.filterAll = 'true';
-    allLabel.hidden = !allSelected;
 
     const allInput = document.createElement('input');
     allInput.type = 'checkbox';
     allInput.checked = allSelected;
-    allInput.disabled = !allSelected;
-    allInput.tabIndex = -1;
 
     allLabel.append(allInput, document.createTextNode('alle'));
     menu.append(allLabel);
@@ -517,11 +539,11 @@ function syncIssueFilterMenuState(field) {
     const allLabel = menu.querySelector('[data-filter-all]');
     const allInput = allLabel?.querySelector('input');
     if (allLabel) {
-        allLabel.hidden = !allSelected;
+        allLabel.hidden = false;
     }
     if (allInput) {
         allInput.checked = allSelected;
-        allInput.disabled = !allSelected;
+        allInput.disabled = false;
     }
 
     for (const label of menu.querySelectorAll('.filter-option:not([data-filter-all])')) {
@@ -711,8 +733,8 @@ async function loadIssueForEdit(id) {
         loadUsers()
     ]);
     issueForm.elements.id.value = issue.id;
-    issueForm.elements.priority.value = String(issue.priority);
-    issueForm.elements.status.value = String(issue.status);
+    issueForm.elements.priority.value = issue.priority;
+    issueForm.elements.status.value = issue.status;
     issueForm.elements.title.value = issue.title;
     issueForm.elements.description.value = issue.description;
     renderUserCheckboxes(issueWorkerUsers, availableUsers, issue.workers.map(worker => worker.id));
@@ -838,8 +860,8 @@ issueForm.addEventListener('submit', async event => {
                 .map(input => Number.parseInt(input.value, 10)),
             title: issueForm.elements.title.value,
             description: issueForm.elements.description.value,
-            priority: Number.parseInt(issueForm.elements.priority.value, 10),
-            status: Number.parseInt(issueForm.elements.status.value, 10)
+            priority: issueForm.elements.priority.value,
+            status: issueForm.elements.status.value
         };
 
         const id = issueForm.elements.id.value ? Number.parseInt(issueForm.elements.id.value, 10) : null;

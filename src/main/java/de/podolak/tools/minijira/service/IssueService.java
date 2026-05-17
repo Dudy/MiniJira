@@ -2,8 +2,11 @@ package de.podolak.tools.minijira.service;
 
 import de.podolak.tools.minijira.domain.AppUser;
 import de.podolak.tools.minijira.domain.Issue;
+import de.podolak.tools.minijira.domain.IssuePriority;
+import de.podolak.tools.minijira.domain.IssueStatus;
 import de.podolak.tools.minijira.repo.IssueRepository;
 import de.podolak.tools.minijira.repo.UserRepository;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,20 +34,30 @@ public class IssueService {
                 workers,
                 command.title().trim(),
                 command.description().trim(),
-                command.priority(),
-                command.status()
+                findPriority(command.priority()),
+                findStatus(command.status())
         );
         return issueRepository.save(issue);
     }
 
     @Transactional(readOnly = true)
     public List<Issue> listIssues(IssueSortField sortField, Sort.Direction direction) {
-        Sort sort = switch (sortField) {
-            case ID -> Sort.by(direction, "id");
-            case AUTHOR -> Sort.by(direction, "author.id").and(Sort.by(Sort.Direction.ASC, "id"));
-            case PRIORITY -> Sort.by(direction, "priority").and(Sort.by(Sort.Direction.ASC, "id"));
+        Comparator<Issue> comparator = switch (sortField) {
+            case ID -> Comparator.comparing(Issue::getId);
+            case AUTHOR -> Comparator.comparing(
+                    (Issue issue) -> issue.getAuthor() == null ? "" : issue.getAuthor().getUsername(),
+                    String.CASE_INSENSITIVE_ORDER
+            );
+            case PRIORITY -> Comparator.comparingInt(
+                    (Issue issue) -> issue.getPriority() == null ? Integer.MAX_VALUE : issue.getPriority().ordinal()
+            );
         };
-        return issueRepository.findAll(sort);
+        if (direction == Sort.Direction.DESC) {
+            comparator = comparator.reversed();
+        }
+        return issueRepository.findAll().stream()
+                .sorted(comparator.thenComparing(Issue::getId))
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -61,8 +74,8 @@ public class IssueService {
         issue.setWorkers(findUsers(command.workerUserIds()));
         issue.setTitle(command.title().trim());
         issue.setDescription(command.description().trim());
-        issue.setPriority(command.priority());
-        issue.setStatus(command.status());
+        issue.setPriority(findPriority(command.priority()));
+        issue.setStatus(findStatus(command.status()));
         return issue;
     }
 
@@ -80,5 +93,21 @@ public class IssueService {
             result.add(findUser(id));
         }
         return result;
+    }
+
+    private IssuePriority findPriority(String value) {
+        try {
+            return IssuePriority.fromRequestValue(value);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    private IssueStatus findStatus(String value) {
+        try {
+            return IssueStatus.fromRequestValue(value);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 }

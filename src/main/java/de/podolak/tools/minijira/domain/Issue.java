@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.util.LinkedHashSet;
@@ -41,16 +43,18 @@ public class Issue {
     @Column(nullable = false, columnDefinition = "text")
     private String description;
 
-    @Column(nullable = false)
-    private Integer priority;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    private IssuePriority priority;
 
-    @Column(nullable = false)
-    private Integer status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    private IssueStatus status;
 
     protected Issue() {
     }
 
-    public Issue(AppUser author, Set<AppUser> workers, String title, String description, Integer priority, Integer status) {
+    public Issue(AppUser author, Set<AppUser> workers, String title, String description, IssuePriority priority, IssueStatus status) {
         this.author = author;
         this.workers = workers;
         this.title = title;
@@ -91,19 +95,19 @@ public class Issue {
         this.description = description;
     }
 
-    public Integer getPriority() {
+    public IssuePriority getPriority() {
         return priority;
     }
 
-    public void setPriority(Integer priority) {
+    public void setPriority(IssuePriority priority) {
         this.priority = priority;
     }
 
-    public Integer getStatus() {
+    public IssueStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(IssueStatus status) {
         this.status = status;
     }
 }
