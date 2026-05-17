@@ -8,7 +8,12 @@
 </head>
 <body>
 <header>
-    <h1>Mini Jira Clone</h1>
+    <p>Mini Jira Clone</p>
+    <nav class="main-nav" data-auth-required hidden aria-label="Hauptmenü">
+        <button type="button" id="overviewButton" aria-current="page">Übersicht</button>
+        <button type="button" id="dummyButton">Dummy</button>
+        <button type="button" id="openCreateIssueButton">neues Issue</button>
+    </nav>
     <div class="session-controls">
         <div id="sessionBox"></div>
         <button id="logoutButton" type="button" hidden>Logout</button>
@@ -67,21 +72,9 @@
         </form>
     </section>
 
-    <section class="panel" data-auth-required hidden>
-        <h2>Issue anlegen</h2>
-        <form id="createIssueForm" class="issue-form">
-            <label>Author User ID <input name="authorUserId" type="number" required min="1"></label>
-            <label>Worker User IDs, kommasepariert <input name="workerUserIds" placeholder="1,2,3"></label>
-            <label>Priority <input name="priority" type="number" min="1" max="5" value="3" required></label>
-            <label>Title <input name="title" required maxlength="200"></label>
-            <label>Description <textarea name="description" required maxlength="20000"></textarea></label>
-            <button>Issue anlegen</button>
-        </form>
-    </section>
-
-    <section class="panel" data-auth-required hidden>
+    <section class="panel" data-auth-required hidden id="overviewPanel">
         <div class="toolbar">
-            <h2>Issues</h2>
+            <h2>Übersicht</h2>
             <label>Sortierung
                 <select id="sortSelect">
                     <option value="id">ID</option>
@@ -105,26 +98,67 @@
                 <th>Worker</th>
                 <th>Titel</th>
                 <th>Priorität</th>
-                <th></th>
             </tr>
             </thead>
             <tbody id="issueTableBody"></tbody>
         </table>
     </section>
 
-    <section class="panel" id="editPanel" data-auth-required hidden>
-        <h2>Issue bearbeiten</h2>
-        <form id="editIssueForm" class="issue-form">
-            <input name="id" type="hidden">
-            <label>Worker User IDs, kommasepariert <input name="workerUserIds"></label>
-            <label>Title <input name="title" required maxlength="200"></label>
-            <label>Description <textarea name="description" required maxlength="20000"></textarea></label>
-            <button>Speichern</button>
-        </form>
-    </section>
-
     <section id="messageBox"></section>
 </main>
+
+<dialog id="createIssueDialog" class="issue-dialog">
+    <section class="panel dialog-panel">
+        <div class="dialog-header">
+            <h2>Issue anlegen</h2>
+            <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
+        </div>
+        <form id="createIssueForm" class="issue-form issue-form-create">
+            <div class="form-row">
+                <label for="createPriority">Priorität</label>
+                <input id="createPriority" name="priority" type="number" min="1" max="5" value="3" required>
+            </div>
+            <div class="form-row">
+                <label for="createTitle">Titel</label>
+                <input id="createTitle" name="title" required maxlength="200">
+            </div>
+            <div class="form-row form-row-textarea">
+                <label for="createDescription">Beschreibung</label>
+                <textarea id="createDescription" name="description" required maxlength="20000"></textarea>
+            </div>
+            <div class="form-row form-row-users">
+                <label>Bearbeiter</label>
+                <div id="createWorkerUsers" class="user-checkboxes"></div>
+            </div>
+            <div class="dialog-actions">
+                <button type="button" data-dialog-close>Abbrechen</button>
+                <button>Issue anlegen</button>
+            </div>
+        </form>
+    </section>
+</dialog>
+
+<dialog id="editIssueDialog" class="issue-dialog">
+    <section class="panel dialog-panel">
+        <div class="dialog-header">
+            <h2>Issue bearbeiten</h2>
+            <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
+        </div>
+        <form id="editIssueForm" class="issue-form">
+            <input name="id" type="hidden">
+            <label>Title <input name="title" required maxlength="200"></label>
+            <label>Description <textarea name="description" required maxlength="20000"></textarea></label>
+            <div class="form-row form-row-users">
+                <label>Bearbeiter</label>
+                <div id="editWorkerUsers" class="user-checkboxes"></div>
+            </div>
+            <div class="dialog-actions">
+                <button type="button" data-dialog-close>Abbrechen</button>
+                <button>Speichern</button>
+            </div>
+        </form>
+    </section>
+</dialog>
 
 <footer>Plain HTML5 / ES6 / CSS3, served by Spring Boot static resources.</footer>
 <script src="app.js" type="module"></script>

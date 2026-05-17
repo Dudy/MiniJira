@@ -17,8 +17,47 @@ header, footer {
 
 header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    gap: 1rem 1.25rem;
+}
+
+header > p {
+    padding: 0;
+    margin: 0;
+    font-weight: 700;
+    flex: 0 0 auto;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.main-nav button {
+    background: transparent;
+    color: white;
+    border: 1px solid rgb(255 255 255 / 18%);
+    padding-inline: 0.75rem;
+    align-self: center;
+}
+
+.main-nav button:hover {
+    background: rgb(255 255 255 / 10%);
+}
+
+.main-nav button[aria-current="page"] {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.session-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
 }
 
 footer {
@@ -27,12 +66,6 @@ footer {
     right: 0;
     bottom: 0;
     z-index: 20;
-}
-
-.session-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
 }
 
 main {
@@ -158,9 +191,81 @@ button.auth-tab[aria-pressed="true"]:hover {
     gap: 1rem;
 }
 
+.issue-form-create {
+    grid-template-columns: 8.75rem minmax(0, 1fr);
+    gap: 0.9rem 1rem;
+    align-items: start;
+}
+
+.issue-form-create .form-row {
+    display: contents;
+}
+
+.issue-form-create .form-row > label {
+    align-self: start;
+    justify-self: end;
+    padding-top: 0.55rem;
+}
+
+.issue-form-create .form-row-textarea > label {
+    align-self: start;
+    padding-top: 0.55rem;
+}
+
+.form-row-users {
+    display: contents;
+}
+
+.form-row-users > label {
+    align-self: start;
+    justify-self: end;
+    padding-top: 0.55rem;
+}
+
+.issue-form-create input,
+.issue-form-create textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.issue-form-create textarea {
+    min-height: 8.5rem;
+}
+
 .issue-form label {
     display: grid;
     gap: 0.25rem;
+}
+
+.form-row-users > .user-checkboxes {
+    grid-column: 2;
+    padding-top: 0.1rem;
+}
+
+.user-checkboxes {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+}
+
+.user-checkbox {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: 0.6rem;
+    align-items: start;
+    justify-items: start;
+    font-weight: 500;
+    text-align: left;
+    padding: 0.1rem 0;
+}
+
+.user-checkbox input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    margin-top: 0.2rem;
 }
 
 label {
@@ -212,6 +317,93 @@ th, td {
     border-bottom: 1px solid #e5e7eb;
     padding: 0.6rem;
     vertical-align: top;
+}
+
+.issue-row {
+    cursor: pointer;
+}
+
+.issue-row:hover {
+    background: #eff6ff;
+}
+
+.issue-dialog {
+    border: none;
+    padding: 0;
+    background: transparent;
+    max-width: min(38rem, calc(100vw - 2rem));
+    width: 100%;
+}
+
+.issue-dialog::backdrop {
+    background: rgb(15 23 42 / 45%);
+}
+
+.dialog-panel {
+    margin: 0;
+    box-shadow: 0 18px 50px rgb(0 0 0 / 28%);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#createIssueDialog .dialog-panel {
+    padding: 1.2rem 1.15rem 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow: auto;
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dialog-header h2 {
+    margin: 0;
+}
+
+.dialog-close {
+    margin-left: auto;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: #475569;
+    font-size: 1.4rem;
+    line-height: 1;
+    align-self: center;
+}
+
+.dialog-close:hover {
+    background: #e2e8f0;
+    color: #111827;
+}
+
+.dialog-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: end;
+    gap: 0.75rem;
+    padding-top: 0.3rem;
+    margin-top: 0.1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.dialog-actions button[type="button"] {
+    background: #e5e7eb;
+    color: #1f2937;
+    align-self: center;
+}
+
+.dialog-actions button[type="button"]:hover {
+    background: #dbe2ea;
+}
+
+.dialog-actions button[type="submit"],
+.dialog-actions button:not([type]) {
+    align-self: center;
 }
 
 #messageBox {

@@ -12,7 +12,6 @@ public final class IssueDtos {
     }
 
     public record CreateIssueRequest(
-            @NotNull Integer authorUserId,
             @NotNull List<@NotNull Integer> workerUserIds,
             @NotBlank @Size(max = 200) String title,
             @NotBlank @Size(max = 20_000) String description,

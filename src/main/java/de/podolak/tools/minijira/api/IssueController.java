@@ -6,9 +6,11 @@ import de.podolak.tools.minijira.dto.IssueDtos.IssueDetailDto;
 import de.podolak.tools.minijira.dto.IssueDtos.IssueListItemDto;
 import de.podolak.tools.minijira.dto.IssueDtos.UpdateIssueRequest;
 import de.podolak.tools.minijira.service.CreateIssueCommand;
+import de.podolak.tools.minijira.service.AuthenticationException;
 import de.podolak.tools.minijira.service.IssueService;
 import de.podolak.tools.minijira.service.IssueSortField;
 import de.podolak.tools.minijira.service.UpdateIssueCommand;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -33,9 +35,10 @@ public class IssueController {
     }
 
     @PostMapping
-    public ResponseEntity<IssueDetailDto> createIssue(@Valid @RequestBody CreateIssueRequest request) {
+    public ResponseEntity<IssueDetailDto> createIssue(@Valid @RequestBody CreateIssueRequest request, HttpSession session) {
+        Integer authorUserId = currentUserId(session);
         CreateIssueCommand command = new CreateIssueCommand(
-                request.authorUserId(),
+                authorUserId,
                 request.workerUserIds(),
                 request.title(),
                 request.description(),
@@ -71,5 +74,13 @@ public class IssueController {
                 request.description()
         );
         return DtoMapper.toIssueDetailDto(issueService.updateIssue(id, command));
+    }
+
+    private Integer currentUserId(HttpSession session) {
+        Object userId = session.getAttribute(SessionController.SESSION_USER_ID);
+        if (userId instanceof Integer id) {
+            return id;
+        }
+        throw new AuthenticationException("Not logged in");
     }
 }

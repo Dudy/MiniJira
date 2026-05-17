@@ -3,6 +3,7 @@ package de.podolak.tools.minijira.service;
 import de.podolak.tools.minijira.domain.AppUser;
 import de.podolak.tools.minijira.repo.UserRepository;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,6 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<AppUser> listUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "username"));
     }
 }

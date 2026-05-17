@@ -3,12 +3,22 @@ const logoutButton = document.querySelector('#logoutButton');
 const messageBox = document.querySelector('#messageBox');
 const issueTableBody = document.querySelector('#issueTableBody');
 const authPanel = document.querySelector('#authPanel');
-const editPanel = document.querySelector('#editPanel');
+const overviewPanel = document.querySelector('#overviewPanel');
+const createIssueDialog = document.querySelector('#createIssueDialog');
+const editIssueDialog = document.querySelector('#editIssueDialog');
+const createIssueForm = document.querySelector('#createIssueForm');
+const editIssueForm = document.querySelector('#editIssueForm');
+const createWorkerUsers = document.querySelector('#createWorkerUsers');
+const editWorkerUsers = document.querySelector('#editWorkerUsers');
 const authRequiredSections = [...document.querySelectorAll('[data-auth-required]')];
 const authForms = new Map([...document.querySelectorAll('[data-auth-form]')].map(form => [form.dataset.authForm, form]));
 const authTabs = [...document.querySelectorAll('[data-auth-target]')];
 const passwordToggles = [...document.querySelectorAll('[data-password-toggle]')];
+const overviewButton = document.querySelector('#overviewButton');
+const openCreateIssueButton = document.querySelector('#openCreateIssueButton');
+const dialogCloseButtons = [...document.querySelectorAll('[data-dialog-close]')];
 let activeAuthMode = 'login';
+let availableUsers = [];
 
 function eyeIcon(isVisible) {
     return isVisible
@@ -53,9 +63,27 @@ function setAuthenticatedView(isAuthenticated) {
     }
     if (!isAuthenticated) {
         issueTableBody.replaceChildren();
-        editPanel.hidden = true;
+        clearUserSelections();
+        closeIssueDialogs();
         setAuthMode('login');
     }
+}
+
+function setActiveView(view) {
+    overviewButton.setAttribute('aria-current', view === 'overview' ? 'page' : 'false');
+}
+
+function closeIssueDialogs() {
+    for (const dialog of [createIssueDialog, editIssueDialog]) {
+        if (dialog.open) {
+            dialog.close();
+        }
+    }
+}
+
+function openDialog(dialog) {
+    closeIssueDialogs();
+    dialog.showModal();
 }
 
 async function request(url, options = {}) {
@@ -80,17 +108,46 @@ function showMessage(message, isError = false) {
     messageBox.className = isError ? 'error' : 'ok';
 }
 
-function parseIds(value) {
-    if (!value || !value.trim()) {
-        return [];
-    }
-    return value.split(',')
-        .map(v => Number.parseInt(v.trim(), 10))
-        .filter(Number.isInteger);
+function userLabel(user) {
+    return user.username;
 }
 
-function userLabel(user) {
-    return `${user.username} (#${user.id})`;
+function formatUserList(users) {
+    return users.map(userLabel).join(', ') || '—';
+}
+
+function clearUserSelections() {
+    createIssueForm.reset();
+    editIssueForm.reset();
+}
+
+function renderUserCheckboxes(container, users, selectedIds = []) {
+    const selected = new Set(selectedIds.map(id => Number.parseInt(id, 10)));
+    container.replaceChildren(...users.map(user => {
+        const label = document.createElement('label');
+        label.className = 'user-checkbox';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.name = 'workerUserIds';
+        input.value = String(user.id);
+        input.checked = selected.has(user.id);
+
+        label.append(input, document.createTextNode(user.username));
+        return label;
+    }));
+}
+
+async function loadUsers() {
+    availableUsers = await request('/api/users');
+    renderUserCheckboxes(createWorkerUsers, availableUsers);
+    renderUserCheckboxes(editWorkerUsers, availableUsers);
+}
+
+async function openCreateIssueDialog() {
+    await loadUsers();
+    createIssueForm.reset();
+    openDialog(createIssueDialog);
 }
 
 function prepareLoginAfterRegistration(username, password) {
@@ -103,14 +160,18 @@ function prepareLoginAfterRegistration(username, password) {
 async function refreshSession() {
     const session = await request('/api/session');
     if (session.loggedIn) {
-        sessionBox.textContent = `Eingeloggt als ${session.username} (#${session.userId})`;
-        document.querySelector('input[name="authorUserId"]').value = session.userId;
+        sessionBox.textContent = `Eingeloggt als ${session.username}`;
         logoutButton.hidden = false;
         setAuthenticatedView(true);
+        setActiveView('overview');
+        await loadUsers();
         await reloadIssues();
     } else {
         sessionBox.textContent = 'Nicht eingeloggt';
         logoutButton.hidden = true;
+        availableUsers = [];
+        renderUserCheckboxes(createWorkerUsers, availableUsers);
+        renderUserCheckboxes(editWorkerUsers, availableUsers);
         setAuthenticatedView(false);
     }
 }
@@ -124,15 +185,15 @@ async function reloadIssues() {
 
 function toIssueRow(issue) {
     const tr = document.createElement('tr');
+    tr.classList.add('issue-row');
     tr.innerHTML = `
         <td>${issue.id}</td>
         <td>${userLabel(issue.author)}</td>
-        <td>${issue.workers.map(userLabel).join(', ')}</td>
+        <td>${formatUserList(issue.workers)}</td>
         <td>${escapeHtml(issue.title)}</td>
         <td>${issue.priority}</td>
-        <td><button data-edit-id="${issue.id}">Bearbeiten</button></td>
     `;
-    tr.querySelector('button').addEventListener('click', () => loadIssueForEdit(issue.id));
+    tr.addEventListener('dblclick', () => loadIssueForEdit(issue.id).catch(e => showMessage(e.message, true)));
     return tr;
 }
 
@@ -146,14 +207,15 @@ function escapeHtml(value) {
 }
 
 async function loadIssueForEdit(id) {
-    const issue = await request(`/api/issues/${id}`);
-    const form = document.querySelector('#editIssueForm');
-    form.elements.id.value = issue.id;
-    form.elements.workerUserIds.value = issue.workers.map(w => w.id).join(',');
-    form.elements.title.value = issue.title;
-    form.elements.description.value = issue.description;
-    editPanel.hidden = false;
-    editPanel.scrollIntoView({behavior: 'smooth'});
+    const [issue] = await Promise.all([
+        request(`/api/issues/${id}`),
+        loadUsers()
+    ]);
+    editIssueForm.elements.id.value = issue.id;
+    editIssueForm.elements.title.value = issue.title;
+    editIssueForm.elements.description.value = issue.description;
+    renderUserCheckboxes(editWorkerUsers, availableUsers, issue.workers.map(worker => worker.id));
+    openDialog(editIssueDialog);
 }
 
 document.querySelector('#createUserForm').addEventListener('submit', async event => {
@@ -169,7 +231,7 @@ document.querySelector('#createUserForm').addEventListener('submit', async event
                 password
             })
         });
-        showMessage(`User angelegt: ${userLabel(user)}`);
+        showMessage(`User angelegt: ${user.username}`);
         prepareLoginAfterRegistration(username, password);
         form.reset();
     } catch (e) {
@@ -207,21 +269,19 @@ logoutButton.addEventListener('click', async () => {
 
 document.querySelector('#createIssueForm').addEventListener('submit', async event => {
     event.preventDefault();
-    const form = event.currentTarget;
     try {
         const issue = await request('/api/issues', {
             method: 'POST',
             body: JSON.stringify({
-                authorUserId: Number.parseInt(form.elements.authorUserId.value, 10),
-                workerUserIds: parseIds(form.elements.workerUserIds.value),
-                title: form.elements.title.value,
-                description: form.elements.description.value,
-                priority: Number.parseInt(form.elements.priority.value, 10)
+                workerUserIds: [...createIssueForm.querySelectorAll('input[name="workerUserIds"]:checked')]
+                    .map(input => Number.parseInt(input.value, 10)),
+                title: createIssueForm.elements.title.value,
+                description: createIssueForm.elements.description.value,
+                priority: Number.parseInt(createIssueForm.elements.priority.value, 10)
             })
         });
         showMessage(`Issue #${issue.id} angelegt`);
-        form.elements.title.value = '';
-        form.elements.description.value = '';
+        createIssueDialog.close();
         await reloadIssues();
     } catch (e) {
         showMessage(e.message, true);
@@ -230,27 +290,44 @@ document.querySelector('#createIssueForm').addEventListener('submit', async even
 
 document.querySelector('#editIssueForm').addEventListener('submit', async event => {
     event.preventDefault();
-    const form = event.currentTarget;
     try {
-        const id = Number.parseInt(form.elements.id.value, 10);
+        const id = Number.parseInt(editIssueForm.elements.id.value, 10);
         await request(`/api/issues/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
-                workerUserIds: parseIds(form.elements.workerUserIds.value),
-                title: form.elements.title.value,
-                description: form.elements.description.value
+                workerUserIds: [...editIssueForm.querySelectorAll('input[name="workerUserIds"]:checked')]
+                    .map(input => Number.parseInt(input.value, 10)),
+                title: editIssueForm.elements.title.value,
+                description: editIssueForm.elements.description.value
             })
         });
         showMessage(`Issue #${id} gespeichert`);
+        editIssueDialog.close();
         await reloadIssues();
     } catch (e) {
         showMessage(e.message, true);
     }
 });
 
+overviewButton.addEventListener('click', () => {
+    overviewPanel.scrollIntoView({behavior: 'smooth', block: 'start'});
+    setActiveView('overview');
+});
+
+openCreateIssueButton.addEventListener('click', () => {
+    openCreateIssueDialog().catch(e => showMessage(e.message, true));
+});
+
 document.querySelector('#reloadIssuesButton').addEventListener('click', () => reloadIssues().catch(e => showMessage(e.message, true)));
 document.querySelector('#sortSelect').addEventListener('change', () => reloadIssues().catch(e => showMessage(e.message, true)));
 document.querySelector('#directionSelect').addEventListener('change', () => reloadIssues().catch(e => showMessage(e.message, true)));
+
+for (const button of dialogCloseButtons) {
+    button.addEventListener('click', () => {
+        const dialog = button.closest('dialog');
+        dialog?.close();
+    });
+}
 
 for (const tab of authTabs) {
     tab.addEventListener('click', () => setAuthMode(tab.dataset.authTarget));
