@@ -1,6 +1,7 @@
 package de.podolak.tools.minijira.api;
 
 import de.podolak.tools.minijira.domain.AppUser;
+import de.podolak.tools.minijira.domain.UserTheme;
 import de.podolak.tools.minijira.dto.SessionDtos.LoginRequest;
 import de.podolak.tools.minijira.dto.SessionDtos.SessionDto;
 import de.podolak.tools.minijira.dto.SessionDtos.UpdatePasswordRequest;
@@ -54,7 +55,13 @@ public class SessionController {
     @PutMapping("/profile")
     public SessionDto updateProfile(@Valid @RequestBody UpdateProfileRequest request, HttpSession session) {
         Integer userId = currentUserId(session);
-        AppUser user = userService.updateProfile(userId, request.username().trim(), request.displayName(), request.office());
+        AppUser user = userService.updateProfile(
+                userId,
+                request.username().trim(),
+                request.displayName(),
+                request.office(),
+                request.theme()
+        );
         session.setAttribute(SESSION_USERNAME, user.getUsername());
         return toSessionDto(user);
     }
@@ -75,6 +82,17 @@ public class SessionController {
     }
 
     private SessionDto toSessionDto(AppUser user) {
-        return new SessionDto(true, user.getId(), user.getUsername(), user.getDisplayName(), user.getOffice());
+        return new SessionDto(
+                true,
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName(),
+                user.getOffice(),
+                toThemeValue(user.getTheme())
+        );
+    }
+
+    private String toThemeValue(UserTheme theme) {
+        return theme == null ? UserTheme.LIGHT.name().toLowerCase() : theme.name().toLowerCase();
     }
 }

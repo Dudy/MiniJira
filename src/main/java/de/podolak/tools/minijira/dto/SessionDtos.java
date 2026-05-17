@@ -13,7 +13,8 @@ public final class SessionDtos {
     public record UpdateProfileRequest(
             @NotBlank @Size(max = 80) String username,
             @Size(max = 120) String displayName,
-            @Size(max = 120) String office
+            @Size(max = 120) String office,
+            @NotBlank String theme
     ) {
     }
 
@@ -23,9 +24,9 @@ public final class SessionDtos {
     ) {
     }
 
-    public record SessionDto(boolean loggedIn, Integer userId, String username, String displayName, String office) {
+    public record SessionDto(boolean loggedIn, Integer userId, String username, String displayName, String office, String theme) {
         public static SessionDto anonymous() {
-            return new SessionDto(false, null, null, null, null);
+            return new SessionDto(false, null, null, null, null, "light");
         }
     }
 }

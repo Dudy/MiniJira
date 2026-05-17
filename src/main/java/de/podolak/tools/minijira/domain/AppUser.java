@@ -2,6 +2,8 @@ package de.podolak.tools.minijira.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,6 +28,10 @@ public class AppUser {
 
     @Column(length = 120)
     private String office;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private UserTheme theme;
 
     protected AppUser() {
     }
@@ -69,5 +75,13 @@ public class AppUser {
 
     public void setOffice(String office) {
         this.office = office;
+    }
+
+    public UserTheme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(UserTheme theme) {
+        this.theme = theme;
     }
 }

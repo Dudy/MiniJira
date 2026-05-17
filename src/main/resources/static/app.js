@@ -20,6 +20,7 @@ const profileUserIdInput = document.querySelector('#profileUserId');
 const profileUsernameInput = document.querySelector('#profileUsername');
 const profileDisplayNameInput = document.querySelector('#profileDisplayName');
 const profileOfficeInput = document.querySelector('#profileOffice');
+const profileThemeSelect = document.querySelector('#profileTheme');
 const openPasswordDialogButton = document.querySelector('#openPasswordDialogButton');
 const profileCancelButton = document.querySelector('#profileCancelButton');
 const passwordForm = document.querySelector('#passwordForm');
@@ -47,6 +48,7 @@ let issueSortState = {field: null, direction: null};
 let issueFilterState = {author: null, worker: null, status: null, priority: null};
 let issueListCache = [];
 let openIssueFilterField = null;
+let currentTheme = 'light';
 
 const ISSUE_STATUS = Object.freeze({
     TODO: 'TODO',
@@ -148,6 +150,13 @@ function setAuthenticatedView(authState) {
     }
 }
 
+function applyTheme(theme) {
+    const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+    currentTheme = normalizedTheme;
+    document.documentElement.dataset.theme = normalizedTheme;
+    document.documentElement.style.colorScheme = normalizedTheme;
+}
+
 function setActiveView(view) {
     currentView = view;
     overviewButton.setAttribute('aria-current', view === 'overview' ? 'page' : 'false');
@@ -166,6 +175,7 @@ function populateProfileForm(session) {
     profileUsernameInput.value = session.username ?? '';
     profileDisplayNameInput.value = session.displayName ?? '';
     profileOfficeInput.value = session.office ?? '';
+    profileThemeSelect.value = session.theme ?? 'light';
 }
 
 function openProfileView() {
@@ -681,6 +691,7 @@ async function refreshSession() {
     if (session.loggedIn) {
         currentSession = session;
         sessionBox.textContent = `Eingeloggt als ${session.username}`;
+        applyTheme(session.theme);
         setUserMenu(session);
         setAuthenticatedView(true);
         setActiveView('overview');
@@ -689,6 +700,7 @@ async function refreshSession() {
     } else {
         currentSession = null;
         sessionBox.textContent = 'Nicht eingeloggt';
+        applyTheme('light');
         hideUserMenu();
         availableUsers = [];
         renderUserCheckboxes(issueWorkerUsers, availableUsers);
@@ -820,7 +832,8 @@ profileForm.addEventListener('submit', async event => {
             body: JSON.stringify({
                 username: profileUsernameInput.value,
                 displayName: profileDisplayNameInput.value,
-                office: profileOfficeInput.value
+                office: profileOfficeInput.value,
+                theme: profileThemeSelect.value
             })
         });
         await refreshSession();

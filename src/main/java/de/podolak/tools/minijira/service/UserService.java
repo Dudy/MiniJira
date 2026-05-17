@@ -1,6 +1,7 @@
 package de.podolak.tools.minijira.service;
 
 import de.podolak.tools.minijira.domain.AppUser;
+import de.podolak.tools.minijira.domain.UserTheme;
 import de.podolak.tools.minijira.repo.UserRepository;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -20,7 +21,9 @@ public class UserService {
         if (userRepository.existsByUsername(username)) {
             throw new BadRequestException("Username already exists: " + username);
         }
-        return userRepository.save(new AppUser(username, password));
+        AppUser user = new AppUser(username, password);
+        user.setTheme(UserTheme.LIGHT);
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +43,7 @@ public class UserService {
     }
 
     @Transactional
-    public AppUser updateProfile(Integer userId, String username, String displayName, String office) {
+    public AppUser updateProfile(Integer userId, String username, String displayName, String office, String theme) {
         AppUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
         if (!user.getUsername().equals(username)) {
@@ -53,6 +56,7 @@ public class UserService {
         }
         user.setDisplayName(normalize(displayName));
         user.setOffice(normalize(office));
+        user.setTheme(parseTheme(theme));
         return user;
     }
 
@@ -74,5 +78,16 @@ public class UserService {
 
     private String normalize(String value) {
         return value == null ? null : value.trim();
+    }
+
+    private UserTheme parseTheme(String value) {
+        if (value == null) {
+            throw new BadRequestException("Theme is required");
+        }
+        try {
+            return UserTheme.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Unsupported theme: " + value);
+        }
     }
 }
