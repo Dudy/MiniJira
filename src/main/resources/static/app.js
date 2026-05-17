@@ -4,14 +4,13 @@ const messageBox = document.querySelector('#messageBox');
 const issueTableBody = document.querySelector('#issueTableBody');
 const authPanel = document.querySelector('#authPanel');
 const overviewPanel = document.querySelector('#overviewPanel');
-const createIssueDialog = document.querySelector('#createIssueDialog');
-const editIssueDialog = document.querySelector('#editIssueDialog');
-const createIssueForm = document.querySelector('#createIssueForm');
-const editIssueForm = document.querySelector('#editIssueForm');
-const createWorkerUsers = document.querySelector('#createWorkerUsers');
-const editWorkerUsers = document.querySelector('#editWorkerUsers');
+const issueDialog = document.querySelector('#issueDialog');
+const issueForm = document.querySelector('#issueForm');
+const issueWorkerUsers = document.querySelector('#issueWorkerUsers');
+const authForm = document.querySelector('#authForm');
+const authHeading = document.querySelector('#authHeading');
+const authSubmitButton = document.querySelector('#authSubmitButton');
 const authRequiredSections = [...document.querySelectorAll('[data-auth-required]')];
-const authForms = new Map([...document.querySelectorAll('[data-auth-form]')].map(form => [form.dataset.authForm, form]));
 const authTabs = [...document.querySelectorAll('[data-auth-target]')];
 const passwordToggles = [...document.querySelectorAll('[data-password-toggle]')];
 const overviewButton = document.querySelector('#overviewButton');
@@ -47,9 +46,8 @@ function setPasswordVisibility(button, input, isVisible) {
 
 function setAuthMode(mode) {
     activeAuthMode = mode;
-    for (const [formMode, form] of authForms) {
-        form.hidden = formMode !== mode;
-    }
+    authHeading.textContent = mode === 'login' ? 'Login' : 'Register';
+    authSubmitButton.textContent = mode === 'login' ? 'Login' : 'Registrieren';
     for (const tab of authTabs) {
         const isActive = tab.dataset.authTarget === mode;
         tab.setAttribute('aria-pressed', String(isActive));
@@ -64,7 +62,7 @@ function setAuthenticatedView(isAuthenticated) {
     if (!isAuthenticated) {
         issueTableBody.replaceChildren();
         clearUserSelections();
-        closeIssueDialogs();
+        closeIssueDialog();
         setAuthMode('login');
     }
 }
@@ -73,16 +71,14 @@ function setActiveView(view) {
     overviewButton.setAttribute('aria-current', view === 'overview' ? 'page' : 'false');
 }
 
-function closeIssueDialogs() {
-    for (const dialog of [createIssueDialog, editIssueDialog]) {
-        if (dialog.open) {
-            dialog.close();
-        }
+function closeIssueDialog() {
+    if (issueDialog.open) {
+        issueDialog.close();
     }
 }
 
 function openDialog(dialog) {
-    closeIssueDialogs();
+    closeIssueDialog();
     dialog.showModal();
 }
 
@@ -117,8 +113,25 @@ function formatUserList(users) {
 }
 
 function clearUserSelections() {
-    createIssueForm.reset();
-    editIssueForm.reset();
+    issueForm.reset();
+    issueForm.elements.id.value = '';
+}
+
+function priorityLabel(priority) {
+    switch (Number(priority)) {
+        case 1:
+            return 'Sehr hoch';
+        case 2:
+            return 'Hoch';
+        case 3:
+            return 'Mittel';
+        case 4:
+            return 'Niedrig';
+        case 5:
+            return 'Sehr niedrig';
+        default:
+            return String(priority);
+    }
 }
 
 function renderUserCheckboxes(container, users, selectedIds = []) {
@@ -140,21 +153,14 @@ function renderUserCheckboxes(container, users, selectedIds = []) {
 
 async function loadUsers() {
     availableUsers = await request('/api/users');
-    renderUserCheckboxes(createWorkerUsers, availableUsers);
-    renderUserCheckboxes(editWorkerUsers, availableUsers);
+    renderUserCheckboxes(issueWorkerUsers, availableUsers);
 }
 
 async function openCreateIssueDialog() {
     await loadUsers();
-    createIssueForm.reset();
-    openDialog(createIssueDialog);
-}
-
-function prepareLoginAfterRegistration(username, password) {
-    const loginForm = document.querySelector('#loginForm');
-    loginForm.elements.username.value = username;
-    loginForm.elements.password.value = password;
-    setAuthMode('login');
+    clearUserSelections();
+    renderUserCheckboxes(issueWorkerUsers, availableUsers);
+    openDialog(issueDialog);
 }
 
 async function refreshSession() {
@@ -170,8 +176,7 @@ async function refreshSession() {
         sessionBox.textContent = 'Nicht eingeloggt';
         logoutButton.hidden = true;
         availableUsers = [];
-        renderUserCheckboxes(createWorkerUsers, availableUsers);
-        renderUserCheckboxes(editWorkerUsers, availableUsers);
+        renderUserCheckboxes(issueWorkerUsers, availableUsers);
         setAuthenticatedView(false);
     }
 }
@@ -191,7 +196,7 @@ function toIssueRow(issue) {
         <td>${userLabel(issue.author)}</td>
         <td>${formatUserList(issue.workers)}</td>
         <td>${escapeHtml(issue.title)}</td>
-        <td>${issue.priority}</td>
+        <td>${priorityLabel(issue.priority)}</td>
     `;
     tr.addEventListener('dblclick', () => loadIssueForEdit(issue.id).catch(e => showMessage(e.message, true)));
     return tr;
@@ -211,43 +216,38 @@ async function loadIssueForEdit(id) {
         request(`/api/issues/${id}`),
         loadUsers()
     ]);
-    editIssueForm.elements.id.value = issue.id;
-    editIssueForm.elements.title.value = issue.title;
-    editIssueForm.elements.description.value = issue.description;
-    renderUserCheckboxes(editWorkerUsers, availableUsers, issue.workers.map(worker => worker.id));
-    openDialog(editIssueDialog);
+    issueForm.elements.id.value = issue.id;
+    issueForm.elements.priority.value = String(issue.priority);
+    issueForm.elements.title.value = issue.title;
+    issueForm.elements.description.value = issue.description;
+    renderUserCheckboxes(issueWorkerUsers, availableUsers, issue.workers.map(worker => worker.id));
+    openDialog(issueDialog);
 }
 
-document.querySelector('#createUserForm').addEventListener('submit', async event => {
+authForm.addEventListener('submit', async event => {
     event.preventDefault();
     const form = event.currentTarget;
     const username = form.elements.username.value;
     const password = form.elements.password.value;
     try {
-        const user = await request('/api/users', {
+        if (activeAuthMode === 'register') {
+            const user = await request('/api/users', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            });
+            showMessage(`User angelegt: ${user.username}`);
+            setAuthMode('login');
+            return;
+        }
+
+        await request('/api/session', {
             method: 'POST',
             body: JSON.stringify({
                 username,
                 password
-            })
-        });
-        showMessage(`User angelegt: ${user.username}`);
-        prepareLoginAfterRegistration(username, password);
-        form.reset();
-    } catch (e) {
-        showMessage(e.message, true);
-    }
-});
-
-document.querySelector('#loginForm').addEventListener('submit', async event => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    try {
-        await request('/api/session', {
-            method: 'POST',
-            body: JSON.stringify({
-                username: form.elements.username.value,
-                password: form.elements.password.value
             })
         });
         await refreshSession();
@@ -267,42 +267,30 @@ logoutButton.addEventListener('click', async () => {
     }
 });
 
-document.querySelector('#createIssueForm').addEventListener('submit', async event => {
+issueForm.addEventListener('submit', async event => {
     event.preventDefault();
     try {
-        const issue = await request('/api/issues', {
-            method: 'POST',
-            body: JSON.stringify({
-                workerUserIds: [...createIssueForm.querySelectorAll('input[name="workerUserIds"]:checked')]
-                    .map(input => Number.parseInt(input.value, 10)),
-                title: createIssueForm.elements.title.value,
-                description: createIssueForm.elements.description.value,
-                priority: Number.parseInt(createIssueForm.elements.priority.value, 10)
-            })
-        });
-        showMessage(`Issue #${issue.id} angelegt`);
-        createIssueDialog.close();
-        await reloadIssues();
-    } catch (e) {
-        showMessage(e.message, true);
-    }
-});
+        const payload = {
+            workerUserIds: [...issueForm.querySelectorAll('input[name="workerUserIds"]:checked')]
+                .map(input => Number.parseInt(input.value, 10)),
+            title: issueForm.elements.title.value,
+            description: issueForm.elements.description.value,
+            priority: Number.parseInt(issueForm.elements.priority.value, 10)
+        };
 
-document.querySelector('#editIssueForm').addEventListener('submit', async event => {
-    event.preventDefault();
-    try {
-        const id = Number.parseInt(editIssueForm.elements.id.value, 10);
-        await request(`/api/issues/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-                workerUserIds: [...editIssueForm.querySelectorAll('input[name="workerUserIds"]:checked')]
-                    .map(input => Number.parseInt(input.value, 10)),
-                title: editIssueForm.elements.title.value,
-                description: editIssueForm.elements.description.value
+        const id = issueForm.elements.id.value ? Number.parseInt(issueForm.elements.id.value, 10) : null;
+        const issue = id === null
+            ? await request('/api/issues', {
+                method: 'POST',
+                body: JSON.stringify(payload)
             })
-        });
-        showMessage(`Issue #${id} gespeichert`);
-        editIssueDialog.close();
+            : await request(`/api/issues/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+        showMessage(id === null ? `Issue #${issue.id} angelegt` : `Issue #${id} gespeichert`);
+        issueDialog.close();
         await reloadIssues();
     } catch (e) {
         showMessage(e.message, true);

@@ -71,7 +71,8 @@ public class IssueController {
         UpdateIssueCommand command = new UpdateIssueCommand(
                 request.workerUserIds(),
                 request.title(),
-                request.description()
+                request.description(),
+                request.priority()
         );
         return DtoMapper.toIssueDetailDto(issueService.updateIssue(id, command));
     }

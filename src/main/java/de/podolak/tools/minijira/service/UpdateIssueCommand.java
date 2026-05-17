@@ -5,6 +5,7 @@ import java.util.List;
 public record UpdateIssueCommand(
         List<Integer> workerUserIds,
         String title,
-        String description
+        String description,
+        Integer priority
 ) {
 }

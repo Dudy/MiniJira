@@ -22,7 +22,8 @@ public final class IssueDtos {
     public record UpdateIssueRequest(
             @NotNull List<@NotNull Integer> workerUserIds,
             @NotBlank @Size(max = 200) String title,
-            @NotBlank @Size(max = 20_000) String description
+            @NotBlank @Size(max = 20_000) String description,
+            @NotNull @Min(1) @Max(5) Integer priority
     ) {
     }
 

@@ -31,44 +31,24 @@
                 </div>
             </div>
         </div>
-        <form id="loginForm" class="auth-form" data-auth-form="login" autocomplete="on">
-            <h3>Login</h3>
-            <label for="loginUsername">Username</label>
-            <input id="loginUsername" name="username" autocomplete="section-login username" required maxlength="80">
-            <label for="loginPassword">Passwort</label>
+        <form id="authForm" class="auth-form" autocomplete="on">
+            <h3 id="authHeading">Login</h3>
+            <label for="authUsername">Username</label>
+            <input id="authUsername" name="username" autocomplete="section-auth username" required maxlength="80">
+            <label for="authPassword">Passwort</label>
             <div class="password-field">
-                <input id="loginPassword" name="password" type="password" autocomplete="section-login current-password" required maxlength="255">
+                <input id="authPassword" name="password" type="password" autocomplete="section-auth current-password" required maxlength="255">
                 <button
                     type="button"
                     class="password-toggle"
                     data-password-toggle
-                    data-password-input="loginPassword"
+                    data-password-input="authPassword"
                     title="Passwort anzeigen"
                     aria-label="Passwort anzeigen"
                     aria-pressed="false"
                 ></button>
             </div>
-            <button>Login</button>
-        </form>
-
-        <form id="createUserForm" class="auth-form" data-auth-form="register" autocomplete="on" hidden>
-            <h3>Register</h3>
-            <label for="registerUsername">Username</label>
-            <input id="registerUsername" name="username" autocomplete="section-register username" required maxlength="80">
-            <label for="registerPassword">Passwort</label>
-            <div class="password-field">
-                <input id="registerPassword" name="password" type="password" autocomplete="section-register new-password" required maxlength="255">
-                <button
-                    type="button"
-                    class="password-toggle"
-                    data-password-toggle
-                    data-password-input="registerPassword"
-                    title="Passwort anzeigen"
-                    aria-label="Passwort anzeigen"
-                    aria-pressed="false"
-                ></button>
-            </div>
-            <button>Registrieren</button>
+            <button id="authSubmitButton" type="submit">Login</button>
         </form>
     </section>
 
@@ -107,45 +87,24 @@
     <section id="messageBox"></section>
 </main>
 
-<dialog id="createIssueDialog" class="issue-dialog">
+<dialog id="issueDialog" class="issue-dialog">
     <section class="panel dialog-panel">
         <div class="dialog-header">
-            <h2>Issue anlegen</h2>
+            <h2>Issue</h2>
             <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
         </div>
-        <form id="createIssueForm" class="issue-form issue-form-dialog">
+        <form id="issueForm" class="issue-form issue-form-dialog">
+            <input name="id" type="hidden">
             <fieldset class="field-frame">
                 <legend>Priorität</legend>
-                <input id="createPriority" name="priority" type="number" min="1" max="5" value="3" required placeholder="3" aria-label="Priorität">
+                <select name="priority" required aria-label="Priorität">
+                    <option value="1">Sehr hoch</option>
+                    <option value="2">Hoch</option>
+                    <option value="3" selected>Mittel</option>
+                    <option value="4">Niedrig</option>
+                    <option value="5">Sehr niedrig</option>
+                </select>
             </fieldset>
-            <fieldset class="field-frame">
-                <legend>Titel</legend>
-                <input id="createTitle" name="title" required maxlength="200" placeholder="Kurz und präzise" aria-label="Titel">
-            </fieldset>
-            <fieldset class="field-frame field-frame-textarea">
-                <legend>Beschreibung</legend>
-                <textarea id="createDescription" name="description" required maxlength="20000" placeholder="Was ist zu tun?" aria-label="Beschreibung"></textarea>
-            </fieldset>
-            <fieldset class="user-frame">
-                <legend>Bearbeiter</legend>
-                <div id="createWorkerUsers" class="user-checkboxes"></div>
-            </fieldset>
-            <div class="dialog-actions">
-                <button type="button" data-dialog-close>Abbrechen</button>
-                <button>Issue anlegen</button>
-            </div>
-        </form>
-    </section>
-</dialog>
-
-<dialog id="editIssueDialog" class="issue-dialog">
-    <section class="panel dialog-panel">
-        <div class="dialog-header">
-            <h2>Issue bearbeiten</h2>
-            <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
-        </div>
-        <form id="editIssueForm" class="issue-form issue-form-dialog">
-            <input name="id" type="hidden">
             <fieldset class="field-frame">
                 <legend>Titel</legend>
                 <input name="title" required maxlength="200" placeholder="Kurz und präzise" aria-label="Titel">
@@ -156,11 +115,11 @@
             </fieldset>
             <fieldset class="user-frame">
                 <legend>Bearbeiter</legend>
-                <div id="editWorkerUsers" class="user-checkboxes"></div>
+                <div id="issueWorkerUsers" class="user-checkboxes"></div>
             </fieldset>
             <div class="dialog-actions">
                 <button type="button" data-dialog-close>Abbrechen</button>
-                <button>Speichern</button>
+                <button type="submit">Speichern</button>
             </div>
         </form>
     </section>

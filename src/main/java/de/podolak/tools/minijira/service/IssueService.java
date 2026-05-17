@@ -60,6 +60,7 @@ public class IssueService {
         issue.setWorkers(findUsers(command.workerUserIds()));
         issue.setTitle(command.title().trim());
         issue.setDescription(command.description().trim());
+        issue.setPriority(command.priority());
         return issue;
     }
 

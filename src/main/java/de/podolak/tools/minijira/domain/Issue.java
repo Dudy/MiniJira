@@ -90,4 +90,8 @@ public class Issue {
     public Integer getPriority() {
         return priority;
     }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
 }
