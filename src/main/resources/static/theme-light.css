@@ -1,0 +1,35 @@
+:root {
+    font-family: system-ui, sans-serif;
+    color: var(--app-fg);
+    background: var(--app-bg);
+    color-scheme: light;
+    --app-bg: #f3f4f6;
+    --app-fg: #1f2937;
+    --surface: #ffffff;
+    --surface-muted: #f8fafc;
+    --surface-elevated: #ffffff;
+    --surface-header: #111827;
+    --surface-header-fg: #ffffff;
+    --surface-panel-fg: #1f2937;
+    --surface-border: #cbd5e1;
+    --surface-border-soft: #e5e7eb;
+    --surface-border-muted: #dbe3ee;
+    --surface-muted-hover: #eff6ff;
+    --surface-muted-hover-strong: #dbe2ea;
+    --muted-fg: #64748b;
+    --muted-fg-strong: #475569;
+    --muted-fg-soft: #94a3b8;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-hover-strong: #3b82f6;
+    --primary-focus: #93c5fd;
+    --primary-fg: #ffffff;
+    --shadow-soft: rgb(0 0 0 / 15%);
+    --shadow-popover: rgb(15 23 42 / 18%);
+    --shadow-dialog: rgb(0 0 0 / 28%);
+    --backdrop: rgb(15 23 42 / 45%);
+    --success: #047857;
+    --error: #b91c1c;
+    --select-arrow: #64748b;
+    --field-bg: transparent;
+}

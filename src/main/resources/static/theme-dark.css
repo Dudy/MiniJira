@@ -1,0 +1,32 @@
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --app-bg: #0f172a;
+    --app-fg: #e2e8f0;
+    --surface: #111827;
+    --surface-muted: #0b1120;
+    --surface-elevated: #1f2937;
+    --surface-header: #020617;
+    --surface-header-fg: #f8fafc;
+    --surface-panel-fg: #e2e8f0;
+    --surface-border: #334155;
+    --surface-border-soft: #334155;
+    --surface-border-muted: #334155;
+    --surface-muted-hover: #1e293b;
+    --surface-muted-hover-strong: #273449;
+    --muted-fg: #94a3b8;
+    --muted-fg-strong: #cbd5e1;
+    --muted-fg-soft: #94a3b8;
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --primary-hover-strong: #93c5fd;
+    --primary-focus: #bfdbfe;
+    --primary-fg: #0f172a;
+    --shadow-soft: rgb(0 0 0 / 38%);
+    --shadow-popover: rgb(0 0 0 / 38%);
+    --shadow-dialog: rgb(0 0 0 / 50%);
+    --backdrop: rgb(2 6 23 / 68%);
+    --success: #34d399;
+    --error: #f87171;
+    --select-arrow: #94a3b8;
+    --field-bg: #0f172a;
+}
