@@ -60,6 +60,80 @@ header > p {
     margin-left: auto;
 }
 
+.user-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.user-menu-trigger {
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 18%);
+    background: #2563eb;
+    color: white;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-grid;
+    place-items: center;
+}
+
+.user-menu-trigger:hover,
+.user-menu-trigger:focus-visible,
+.user-menu-trigger[aria-expanded="true"] {
+    background: #1d4ed8;
+    border-color: #3b82f6;
+}
+
+.user-menu-trigger:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+.user-menu-popover {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 10rem;
+    padding: 0.35rem;
+    border: 1px solid #dbe3ee;
+    border-radius: 0.55rem;
+    background: white;
+    color: #1f2937;
+    box-shadow: 0 18px 40px rgb(15 23 42 / 18%);
+    z-index: 30;
+}
+
+.user-menu-item {
+    width: 100%;
+    border: 0;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: #1f2937;
+    text-align: left;
+    padding: 0.55rem 0.7rem;
+    align-self: auto;
+}
+
+.user-menu-item:hover,
+.user-menu-item:focus-visible {
+    background: #eff6ff;
+    color: #111827;
+}
+
+.user-menu-item:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 1px;
+}
+
+.user-menu-separator {
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 0.35rem 0;
+}
+
 footer {
     position: fixed;
     left: 0;
@@ -90,6 +164,13 @@ main {
     width: fit-content;
     max-width: 100%;
     justify-self: center;
+}
+
+.profile-panel {
+    width: min(768px, calc(100vw - 3rem));
+    max-width: 768px;
+    justify-self: center;
+    box-sizing: border-box;
 }
 
 .auth-header {
@@ -146,6 +227,14 @@ button.auth-tab[aria-pressed="true"]:hover {
     width: min(24rem, 100%);
 }
 
+.profile-form {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    width: 100%;
+    align-items: center;
+}
+
 .auth-form h3 {
     margin: 0;
 }
@@ -153,6 +242,24 @@ button.auth-tab[aria-pressed="true"]:hover {
 .auth-form input {
     width: 100%;
     box-sizing: border-box;
+}
+
+.profile-form input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-form label {
+    justify-self: end;
+}
+
+.profile-form input[readonly] {
+    background: #f8fafc;
+    color: #475569;
+}
+
+.profile-actions {
+    grid-column: 1 / -1;
 }
 
 .password-field {

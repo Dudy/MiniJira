@@ -16,7 +16,21 @@
     </nav>
     <div class="session-controls">
         <div id="sessionBox"></div>
-        <button id="logoutButton" type="button" hidden>Logout</button>
+        <div class="user-menu" id="userMenuWrapper" hidden>
+            <button
+                id="userMenuButton"
+                class="user-menu-trigger"
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="userMenu"
+            ></button>
+            <div id="userMenu" class="user-menu-popover" role="menu" hidden>
+                <button type="button" class="user-menu-item" data-profile-button role="menuitem">Profil</button>
+                <hr class="user-menu-separator">
+                <button type="button" class="user-menu-item" data-logout-button role="menuitem">Logout</button>
+            </div>
+        </div>
     </div>
 </header>
 
@@ -49,6 +63,31 @@
                 ></button>
             </div>
             <button id="authSubmitButton" type="submit">Login</button>
+        </form>
+    </section>
+
+    <section class="panel profile-panel" data-auth-required hidden id="profilePanel">
+        <div class="toolbar">
+            <h2>Profil</h2>
+        </div>
+        <form id="profileForm" class="profile-form">
+            <label for="profileUserId">User ID</label>
+            <input id="profileUserId" name="userId" readonly aria-readonly="true">
+
+            <label for="profileUsername">Username</label>
+            <input id="profileUsername" name="username" maxlength="80" required>
+
+            <label for="profileDisplayName">Anzeigename</label>
+            <input id="profileDisplayName" name="displayName" maxlength="120">
+
+            <label for="profileOffice">Büro</label>
+            <input id="profileOffice" name="office" maxlength="120">
+
+            <div class="dialog-actions profile-actions">
+                <button id="openPasswordDialogButton" type="button">Passwort ändern</button>
+                <button id="profileCancelButton" type="button">Abbrechen</button>
+                <button id="profileSaveButton" type="submit">Speichern</button>
+            </div>
         </form>
     </section>
 
@@ -118,6 +157,66 @@
                 <div id="issueWorkerUsers" class="user-checkboxes"></div>
             </fieldset>
             <div class="dialog-actions">
+                <button type="button" data-dialog-close>Abbrechen</button>
+                <button type="submit">Speichern</button>
+            </div>
+        </form>
+    </section>
+</dialog>
+
+<dialog id="passwordDialog" class="issue-dialog">
+    <section class="panel dialog-panel">
+        <div class="dialog-header">
+            <h2>Passwort ändern</h2>
+            <button type="button" class="dialog-close" data-dialog-close aria-label="Dialog schließen">×</button>
+        </div>
+        <form id="passwordForm" class="issue-form issue-form-dialog">
+            <fieldset class="field-frame">
+                <legend>Aktuelles Passwort</legend>
+                <div class="password-field">
+                    <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required maxlength="255">
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-password-toggle
+                        data-password-input="currentPassword"
+                        title="Passwort anzeigen"
+                        aria-label="Passwort anzeigen"
+                        aria-pressed="false"
+                    ></button>
+                </div>
+            </fieldset>
+            <fieldset class="field-frame">
+                <legend>Neues Passwort</legend>
+                <div class="password-field">
+                    <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" required maxlength="255">
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-password-toggle
+                        data-password-input="newPassword"
+                        title="Passwort anzeigen"
+                        aria-label="Passwort anzeigen"
+                        aria-pressed="false"
+                    ></button>
+                </div>
+            </fieldset>
+            <fieldset class="field-frame">
+                <legend>Neues Passwort wiederholen</legend>
+                <div class="password-field">
+                    <input id="confirmNewPassword" name="confirmNewPassword" type="password" autocomplete="new-password" required maxlength="255">
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-password-toggle
+                        data-password-input="confirmNewPassword"
+                        title="Passwort anzeigen"
+                        aria-label="Passwort anzeigen"
+                        aria-pressed="false"
+                    ></button>
+                </div>
+            </fieldset>
+            <div class="dialog-actions password-actions">
                 <button type="button" data-dialog-close>Abbrechen</button>
                 <button type="submit">Speichern</button>
             </div>

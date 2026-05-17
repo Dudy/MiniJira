@@ -1,9 +1,27 @@
 const sessionBox = document.querySelector('#sessionBox');
-const logoutButton = document.querySelector('#logoutButton');
+const userMenuWrapper = document.querySelector('#userMenuWrapper');
+const userMenuButton = document.querySelector('#userMenuButton');
+const userMenu = document.querySelector('#userMenu');
+const profileButton = document.querySelector('[data-profile-button]');
+const menuLogoutButton = document.querySelector('[data-logout-button]');
+const dummyButton = document.querySelector('#dummyButton');
 const messageBox = document.querySelector('#messageBox');
 const issueTableBody = document.querySelector('#issueTableBody');
 const authPanel = document.querySelector('#authPanel');
+const profilePanel = document.querySelector('#profilePanel');
 const overviewPanel = document.querySelector('#overviewPanel');
+const passwordDialog = document.querySelector('#passwordDialog');
+const profileForm = document.querySelector('#profileForm');
+const profileUserIdInput = document.querySelector('#profileUserId');
+const profileUsernameInput = document.querySelector('#profileUsername');
+const profileDisplayNameInput = document.querySelector('#profileDisplayName');
+const profileOfficeInput = document.querySelector('#profileOffice');
+const openPasswordDialogButton = document.querySelector('#openPasswordDialogButton');
+const profileCancelButton = document.querySelector('#profileCancelButton');
+const passwordForm = document.querySelector('#passwordForm');
+const currentPasswordInput = document.querySelector('#currentPassword');
+const newPasswordInput = document.querySelector('#newPassword');
+const confirmNewPasswordInput = document.querySelector('#confirmNewPassword');
 const issueDialog = document.querySelector('#issueDialog');
 const issueForm = document.querySelector('#issueForm');
 const issueWorkerUsers = document.querySelector('#issueWorkerUsers');
@@ -18,6 +36,9 @@ const openCreateIssueButton = document.querySelector('#openCreateIssueButton');
 const dialogCloseButtons = [...document.querySelectorAll('[data-dialog-close]')];
 let activeAuthMode = 'login';
 let availableUsers = [];
+let currentSession = null;
+let currentView = 'overview';
+let isAuthenticated = false;
 
 function eyeIcon(isVisible) {
     return isVisible
@@ -54,21 +75,60 @@ function setAuthMode(mode) {
     }
 }
 
-function setAuthenticatedView(isAuthenticated) {
+function setAuthenticatedView(authState) {
+    isAuthenticated = Boolean(authState);
     authPanel.hidden = isAuthenticated;
     for (const section of authRequiredSections) {
         section.hidden = !isAuthenticated;
     }
     if (!isAuthenticated) {
+        currentView = 'overview';
         issueTableBody.replaceChildren();
         clearUserSelections();
         closeIssueDialog();
+        closePasswordDialog();
         setAuthMode('login');
     }
 }
 
 function setActiveView(view) {
+    currentView = view;
     overviewButton.setAttribute('aria-current', view === 'overview' ? 'page' : 'false');
+    dummyButton?.setAttribute('aria-current', 'false');
+    if (!isAuthenticated) {
+        overviewPanel.hidden = true;
+        profilePanel.hidden = true;
+        return;
+    }
+    overviewPanel.hidden = view !== 'overview';
+    profilePanel.hidden = view !== 'profile';
+}
+
+function populateProfileForm(session) {
+    profileUserIdInput.value = String(session.userId ?? '');
+    profileUsernameInput.value = session.username ?? '';
+    profileDisplayNameInput.value = session.displayName ?? '';
+    profileOfficeInput.value = session.office ?? '';
+}
+
+function openProfileView() {
+    if (!currentSession) {
+        showMessage('Keine aktive Sitzung', true);
+        return;
+    }
+    populateProfileForm(currentSession);
+    setActiveView('profile');
+    closePasswordDialog();
+    profileUsernameInput.focus();
+    profileUsernameInput.select();
+}
+
+function showOverviewView({focusTrigger = false} = {}) {
+    closePasswordDialog();
+    setActiveView('overview');
+    if (focusTrigger) {
+        overviewButton.focus();
+    }
 }
 
 function closeIssueDialog() {
@@ -77,8 +137,15 @@ function closeIssueDialog() {
     }
 }
 
+function closePasswordDialog() {
+    if (passwordDialog.open) {
+        passwordDialog.close();
+    }
+}
+
 function openDialog(dialog) {
     closeIssueDialog();
+    closePasswordDialog();
     dialog.showModal();
 }
 
@@ -102,6 +169,49 @@ async function request(url, options = {}) {
 function showMessage(message, isError = false) {
     messageBox.textContent = message;
     messageBox.className = isError ? 'error' : 'ok';
+}
+
+function getUserInitial(username) {
+    const trimmed = username.trim();
+    return trimmed ? trimmed.charAt(0).toUpperCase() : '?';
+}
+
+function closeUserMenu({focusTrigger = false} = {}) {
+    userMenu.hidden = true;
+    userMenuButton.setAttribute('aria-expanded', 'false');
+    if (focusTrigger) {
+        userMenuButton.focus();
+    }
+}
+
+function openUserMenu() {
+    userMenu.hidden = false;
+    userMenuButton.setAttribute('aria-expanded', 'true');
+    profileButton.focus();
+}
+
+function toggleUserMenu() {
+    if (userMenu.hidden) {
+        openUserMenu();
+    } else {
+        closeUserMenu();
+    }
+}
+
+function setUserMenu(session) {
+    userMenuWrapper.hidden = false;
+    closeUserMenu();
+    userMenuButton.textContent = getUserInitial(session.username);
+    userMenuButton.setAttribute('aria-label', `Benutzermenü für ${session.username}`);
+    userMenuButton.title = session.username;
+}
+
+function hideUserMenu() {
+    closeUserMenu();
+    userMenuWrapper.hidden = true;
+    userMenuButton.textContent = '';
+    userMenuButton.removeAttribute('aria-label');
+    userMenuButton.removeAttribute('title');
 }
 
 function userLabel(user) {
@@ -166,18 +276,21 @@ async function openCreateIssueDialog() {
 async function refreshSession() {
     const session = await request('/api/session');
     if (session.loggedIn) {
+        currentSession = session;
         sessionBox.textContent = `Eingeloggt als ${session.username}`;
-        logoutButton.hidden = false;
+        setUserMenu(session);
         setAuthenticatedView(true);
         setActiveView('overview');
         await loadUsers();
         await reloadIssues();
     } else {
+        currentSession = null;
         sessionBox.textContent = 'Nicht eingeloggt';
-        logoutButton.hidden = true;
+        hideUserMenu();
         availableUsers = [];
         renderUserCheckboxes(issueWorkerUsers, availableUsers);
         setAuthenticatedView(false);
+        setActiveView('overview');
     }
 }
 
@@ -257,11 +370,79 @@ authForm.addEventListener('submit', async event => {
     }
 });
 
-logoutButton.addEventListener('click', async () => {
+userMenuButton.addEventListener('click', () => {
+    toggleUserMenu();
+});
+
+profileButton.addEventListener('click', () => {
+    closeUserMenu({focusTrigger: true});
+    openProfileView();
+});
+
+menuLogoutButton.addEventListener('click', async () => {
     try {
+        closeUserMenu({focusTrigger: true});
         await request('/api/session', {method: 'DELETE'});
         await refreshSession();
         showMessage('Logout erfolgreich');
+    } catch (e) {
+        showMessage(e.message, true);
+    }
+});
+
+userMenuWrapper.addEventListener('focusout', event => {
+    if (!userMenuWrapper.contains(event.relatedTarget)) {
+        closeUserMenu();
+    }
+});
+
+openPasswordDialogButton.addEventListener('click', () => {
+    currentPasswordInput.value = '';
+    newPasswordInput.value = '';
+    confirmNewPasswordInput.value = '';
+    openDialog(passwordDialog);
+    currentPasswordInput.focus();
+});
+
+profileCancelButton.addEventListener('click', () => {
+    showOverviewView({focusTrigger: true});
+});
+
+profileForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    try {
+        await request('/api/session/profile', {
+            method: 'PUT',
+            body: JSON.stringify({
+                username: profileUsernameInput.value,
+                displayName: profileDisplayNameInput.value,
+                office: profileOfficeInput.value
+            })
+        });
+        await refreshSession();
+        showOverviewView({focusTrigger: true});
+        showMessage('Profil gespeichert');
+    } catch (e) {
+        showMessage(e.message, true);
+    }
+});
+
+passwordForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (newPasswordInput.value !== confirmNewPasswordInput.value) {
+        showMessage('Neue Passwörter stimmen nicht überein', true);
+        return;
+    }
+    try {
+        await request('/api/session/password', {
+            method: 'PUT',
+            body: JSON.stringify({
+                currentPassword: currentPasswordInput.value,
+                newPassword: newPasswordInput.value
+            })
+        });
+        closePasswordDialog();
+        showMessage('Passwort geändert');
     } catch (e) {
         showMessage(e.message, true);
     }
@@ -298,8 +479,7 @@ issueForm.addEventListener('submit', async event => {
 });
 
 overviewButton.addEventListener('click', () => {
-    overviewPanel.scrollIntoView({behavior: 'smooth', block: 'start'});
-    setActiveView('overview');
+    showOverviewView();
 });
 
 openCreateIssueButton.addEventListener('click', () => {
@@ -309,6 +489,18 @@ openCreateIssueButton.addEventListener('click', () => {
 document.querySelector('#reloadIssuesButton').addEventListener('click', () => reloadIssues().catch(e => showMessage(e.message, true)));
 document.querySelector('#sortSelect').addEventListener('change', () => reloadIssues().catch(e => showMessage(e.message, true)));
 document.querySelector('#directionSelect').addEventListener('change', () => reloadIssues().catch(e => showMessage(e.message, true)));
+
+document.addEventListener('pointerdown', event => {
+    if (!userMenu.hidden && !userMenuWrapper.contains(event.target)) {
+        closeUserMenu();
+    }
+});
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !userMenu.hidden) {
+        closeUserMenu({focusTrigger: true});
+    }
+});
 
 for (const button of dialogCloseButtons) {
     button.addEventListener('click', () => {

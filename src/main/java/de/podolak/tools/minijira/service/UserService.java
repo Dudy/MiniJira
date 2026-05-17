@@ -39,8 +39,40 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found: " + id));
     }
 
+    @Transactional
+    public AppUser updateProfile(Integer userId, String username, String displayName, String office) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+        if (!user.getUsername().equals(username)) {
+            userRepository.findByUsername(username)
+                    .filter(existing -> !existing.getId().equals(userId))
+                    .ifPresent(existing -> {
+                        throw new BadRequestException("Username already exists: " + username);
+                    });
+            user.setUsername(username);
+        }
+        user.setDisplayName(normalize(displayName));
+        user.setOffice(normalize(office));
+        return user;
+    }
+
+    @Transactional
+    public AppUser updatePassword(Integer userId, String currentPassword, String newPassword) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+        if (!user.getPassword().equals(currentPassword)) {
+            throw new AuthenticationException("Invalid current password");
+        }
+        user.setPassword(newPassword);
+        return user;
+    }
+
     @Transactional(readOnly = true)
     public List<AppUser> listUsers() {
         return userRepository.findAll(Sort.by(Sort.Direction.ASC, "username"));
+    }
+
+    private String normalize(String value) {
+        return value == null ? null : value.trim();
     }
 }
