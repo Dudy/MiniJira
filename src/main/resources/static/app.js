@@ -244,6 +244,23 @@ function priorityLabel(priority) {
     }
 }
 
+function statusLabel(status) {
+    switch (Number(status)) {
+        case 1:
+            return 'to do';
+        case 2:
+            return 'doing';
+        case 3:
+            return 'testing';
+        case 4:
+            return 'reviewing';
+        case 5:
+            return 'done';
+        default:
+            return String(status);
+    }
+}
+
 function renderUserCheckboxes(container, users, selectedIds = []) {
     const selected = new Set(selectedIds.map(id => Number.parseInt(id, 10)));
     container.replaceChildren(...users.map(user => {
@@ -309,6 +326,7 @@ function toIssueRow(issue) {
         <td>${userLabel(issue.author)}</td>
         <td>${formatUserList(issue.workers)}</td>
         <td>${escapeHtml(issue.title)}</td>
+        <td>${statusLabel(issue.status)}</td>
         <td>${priorityLabel(issue.priority)}</td>
     `;
     tr.addEventListener('dblclick', () => loadIssueForEdit(issue.id).catch(e => showMessage(e.message, true)));
@@ -331,6 +349,7 @@ async function loadIssueForEdit(id) {
     ]);
     issueForm.elements.id.value = issue.id;
     issueForm.elements.priority.value = String(issue.priority);
+    issueForm.elements.status.value = String(issue.status);
     issueForm.elements.title.value = issue.title;
     issueForm.elements.description.value = issue.description;
     renderUserCheckboxes(issueWorkerUsers, availableUsers, issue.workers.map(worker => worker.id));
@@ -456,7 +475,8 @@ issueForm.addEventListener('submit', async event => {
                 .map(input => Number.parseInt(input.value, 10)),
             title: issueForm.elements.title.value,
             description: issueForm.elements.description.value,
-            priority: Number.parseInt(issueForm.elements.priority.value, 10)
+            priority: Number.parseInt(issueForm.elements.priority.value, 10),
+            status: Number.parseInt(issueForm.elements.status.value, 10)
         };
 
         const id = issueForm.elements.id.value ? Number.parseInt(issueForm.elements.id.value, 10) : null;

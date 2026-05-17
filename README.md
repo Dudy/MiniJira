@@ -21,3 +21,6 @@ UI: http://localhost:8080/
 - GET /api/issues?sort=id|author|priority&direction=asc|desc
 - GET /api/issues/{id}
 - PUT /api/issues/{id}
+
+Issue payloads now include `status` as an integer from `1` to `5`:
+`1 = to do`, `2 = doing`, `3 = testing`, `4 = reviewing`, `5 = done`.

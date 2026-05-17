@@ -31,7 +31,8 @@ public class IssueService {
                 workers,
                 command.title().trim(),
                 command.description().trim(),
-                command.priority()
+                command.priority(),
+                command.status()
         );
         return issueRepository.save(issue);
     }
@@ -61,6 +62,7 @@ public class IssueService {
         issue.setTitle(command.title().trim());
         issue.setDescription(command.description().trim());
         issue.setPriority(command.priority());
+        issue.setStatus(command.status());
         return issue;
     }
 

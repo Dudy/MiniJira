@@ -21,7 +21,8 @@ final class DtoMapper {
                 toUserDto(issue.getAuthor()),
                 issue.getWorkers().stream().map(DtoMapper::toUserDto).toList(),
                 issue.getTitle(),
-                issue.getPriority()
+                issue.getPriority(),
+                issue.getStatus()
         );
     }
 
@@ -33,7 +34,8 @@ final class DtoMapper {
                 workers,
                 issue.getTitle(),
                 issue.getDescription(),
-                issue.getPriority()
+                issue.getPriority(),
+                issue.getStatus()
         );
     }
 }

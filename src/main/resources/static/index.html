@@ -116,6 +116,7 @@
                 <th>Autor</th>
                 <th>Worker</th>
                 <th>Titel</th>
+                <th>Status</th>
                 <th>Priorität</th>
             </tr>
             </thead>
@@ -142,6 +143,16 @@
                     <option value="3" selected>Mittel</option>
                     <option value="4">Niedrig</option>
                     <option value="5">Sehr niedrig</option>
+                </select>
+            </fieldset>
+            <fieldset class="field-frame">
+                <legend>Status</legend>
+                <select name="status" required aria-label="Status">
+                    <option value="1" selected>to do</option>
+                    <option value="2">doing</option>
+                    <option value="3">testing</option>
+                    <option value="4">reviewing</option>
+                    <option value="5">done</option>
                 </select>
             </fieldset>
             <fieldset class="field-frame">

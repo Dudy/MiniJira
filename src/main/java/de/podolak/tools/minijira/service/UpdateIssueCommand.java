@@ -6,6 +6,7 @@ public record UpdateIssueCommand(
         List<Integer> workerUserIds,
         String title,
         String description,
-        Integer priority
+        Integer priority,
+        Integer status
 ) {
 }

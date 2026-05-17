@@ -7,6 +7,7 @@ public record CreateIssueCommand(
         List<Integer> workerUserIds,
         String title,
         String description,
-        Integer priority
+        Integer priority,
+        Integer status
 ) {
 }

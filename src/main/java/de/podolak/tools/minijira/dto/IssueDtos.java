@@ -15,7 +15,8 @@ public final class IssueDtos {
             @NotNull List<@NotNull Integer> workerUserIds,
             @NotBlank @Size(max = 200) String title,
             @NotBlank @Size(max = 20_000) String description,
-            @NotNull @Min(1) @Max(5) Integer priority
+            @NotNull @Min(1) @Max(5) Integer priority,
+            @NotNull @Min(1) @Max(5) Integer status
     ) {
     }
 
@@ -23,7 +24,8 @@ public final class IssueDtos {
             @NotNull List<@NotNull Integer> workerUserIds,
             @NotBlank @Size(max = 200) String title,
             @NotBlank @Size(max = 20_000) String description,
-            @NotNull @Min(1) @Max(5) Integer priority
+            @NotNull @Min(1) @Max(5) Integer priority,
+            @NotNull @Min(1) @Max(5) Integer status
     ) {
     }
 
@@ -32,7 +34,8 @@ public final class IssueDtos {
             UserDtos.UserDto author,
             List<UserDtos.UserDto> workers,
             String title,
-            Integer priority
+            Integer priority,
+            Integer status
     ) {
     }
 
@@ -42,7 +45,8 @@ public final class IssueDtos {
             List<UserDtos.UserDto> workers,
             String title,
             String description,
-            Integer priority
+            Integer priority,
+            Integer status
     ) {
     }
 }

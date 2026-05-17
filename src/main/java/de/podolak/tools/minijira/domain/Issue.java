@@ -44,15 +44,19 @@ public class Issue {
     @Column(nullable = false)
     private Integer priority;
 
+    @Column(nullable = false)
+    private Integer status;
+
     protected Issue() {
     }
 
-    public Issue(AppUser author, Set<AppUser> workers, String title, String description, Integer priority) {
+    public Issue(AppUser author, Set<AppUser> workers, String title, String description, Integer priority, Integer status) {
         this.author = author;
         this.workers = workers;
         this.title = title;
         this.description = description;
         this.priority = priority;
+        this.status = status;
     }
 
     public Integer getId() {
@@ -93,5 +97,13 @@ public class Issue {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

@@ -42,7 +42,8 @@ public class IssueController {
                 request.workerUserIds(),
                 request.title(),
                 request.description(),
-                request.priority()
+                request.priority(),
+                request.status()
         );
         Issue issue = issueService.createIssue(command);
         return ResponseEntity.created(URI.create("/api/issues/" + issue.getId()))
@@ -72,7 +73,8 @@ public class IssueController {
                 request.workerUserIds(),
                 request.title(),
                 request.description(),
-                request.priority()
+                request.priority(),
+                request.status()
         );
         return DtoMapper.toIssueDetailDto(issueService.updateIssue(id, command));
     }
