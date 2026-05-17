@@ -1,72 +1,3 @@
-:root {
-    font-family: system-ui, sans-serif;
-    color: var(--app-fg);
-    background: var(--app-bg);
-    color-scheme: light;
-    --app-bg: #f3f4f6;
-    --app-fg: #1f2937;
-    --surface: #ffffff;
-    --surface-muted: #f8fafc;
-    --surface-elevated: #ffffff;
-    --surface-header: #111827;
-    --surface-header-fg: #ffffff;
-    --surface-panel-fg: #1f2937;
-    --surface-border: #cbd5e1;
-    --surface-border-soft: #e5e7eb;
-    --surface-border-muted: #dbe3ee;
-    --surface-muted-hover: #eff6ff;
-    --surface-muted-hover-strong: #dbe2ea;
-    --muted-fg: #64748b;
-    --muted-fg-strong: #475569;
-    --muted-fg-soft: #94a3b8;
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --primary-hover-strong: #3b82f6;
-    --primary-focus: #93c5fd;
-    --primary-fg: #ffffff;
-    --shadow-soft: rgb(0 0 0 / 15%);
-    --shadow-popover: rgb(15 23 42 / 18%);
-    --shadow-dialog: rgb(0 0 0 / 28%);
-    --backdrop: rgb(15 23 42 / 45%);
-    --success: #047857;
-    --error: #b91c1c;
-    --select-arrow: #64748b;
-    --field-bg: transparent;
-}
-
-:root[data-theme="dark"] {
-    color-scheme: dark;
-    --app-bg: #0f172a;
-    --app-fg: #e2e8f0;
-    --surface: #111827;
-    --surface-muted: #0b1120;
-    --surface-elevated: #1f2937;
-    --surface-header: #020617;
-    --surface-header-fg: #f8fafc;
-    --surface-panel-fg: #e2e8f0;
-    --surface-border: #334155;
-    --surface-border-soft: #334155;
-    --surface-border-muted: #334155;
-    --surface-muted-hover: #1e293b;
-    --surface-muted-hover-strong: #273449;
-    --muted-fg: #94a3b8;
-    --muted-fg-strong: #cbd5e1;
-    --muted-fg-soft: #94a3b8;
-    --primary: #60a5fa;
-    --primary-hover: #3b82f6;
-    --primary-hover-strong: #93c5fd;
-    --primary-focus: #bfdbfe;
-    --primary-fg: #0f172a;
-    --shadow-soft: rgb(0 0 0 / 38%);
-    --shadow-popover: rgb(0 0 0 / 38%);
-    --shadow-dialog: rgb(0 0 0 / 50%);
-    --backdrop: rgb(2 6 23 / 68%);
-    --success: #34d399;
-    --error: #f87171;
-    --select-arrow: #94a3b8;
-    --field-bg: #0f172a;
-}
-
 body {
     margin: 0;
     min-height: 100vh;
@@ -127,9 +58,9 @@ header {
             align-items: center;
 
             .user-menu-trigger {
+                padding: 0.16rem 0.55rem;
                 width: 2.4rem;
                 height: 2.4rem;
-                padding: 0;
                 border-radius: 999px;
                 border: 1px solid rgb(255 255 255 / 18%);
                 background: var(--primary);

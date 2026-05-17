@@ -16,5 +16,20 @@ spring:
     resources:
       static-locations: classpath:/static/
 
+app:
+  cors:
+    enabled: false
+    allowed-origins: []
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    allowed-headers:
+      - "*"
+    allow-credentials: true
+
 server:
   port: 8282

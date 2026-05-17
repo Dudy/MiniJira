@@ -151,10 +151,10 @@ function setAuthenticatedView(authState) {
 }
 
 function applyTheme(theme) {
-    const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+    const normalizedTheme = theme === 'dark' || theme === 'retro' ? theme : 'light';
     currentTheme = normalizedTheme;
     document.documentElement.dataset.theme = normalizedTheme;
-    document.documentElement.style.colorScheme = normalizedTheme;
+    document.documentElement.style.colorScheme = normalizedTheme === 'dark' ? 'dark' : 'light';
 }
 
 function setActiveView(view) {
@@ -268,9 +268,17 @@ function toggleUserMenu() {
 function setUserMenu(session) {
     userMenuWrapper.hidden = false;
     closeUserMenu();
-    userMenuButton.textContent = getUserInitial(session.username);
-    userMenuButton.setAttribute('aria-label', `Benutzermenü für ${session.username}`);
-    userMenuButton.title = session.username;
+    if (currentTheme === 'retro') {
+        // userMenuButton.textContent = 'Contact';
+        userMenuButton.textContent = session.username;
+        userMenuButton.setAttribute('aria-label', `Benutzermenü für ${session.username}`);
+        // userMenuButton.title = 'Contact';
+        userMenuButton.title = session.username;
+    } else {
+        userMenuButton.textContent = getUserInitial(session.username);
+        userMenuButton.setAttribute('aria-label', `Benutzermenü für ${session.username}`);
+        userMenuButton.title = session.username;
+    }
 }
 
 function hideUserMenu() {
@@ -691,6 +699,13 @@ async function refreshSession() {
     if (session.loggedIn) {
         currentSession = session;
         sessionBox.textContent = `Eingeloggt als ${session.username}`;
+
+        if (currentTheme !== 'retro') {
+            sessionBox.textContent = "";
+        } else {
+            sessionBox.textContent = `Eingeloggt als ${session.username}`;
+        }
+
         applyTheme(session.theme);
         setUserMenu(session);
         setAuthenticatedView(true);
