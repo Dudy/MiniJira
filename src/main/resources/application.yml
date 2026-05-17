@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: jira-clone-v1
+  datasource:
+    url: jdbc:postgresql://localhost:5432/minijira
+    username: minijira
+    password: minijira
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+server:
+  port: 8282

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mini Jira Clone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <h1>Mini Jira Clone</h1>
+    <div class="session-controls">
+        <div id="sessionBox"></div>
+        <button id="logoutButton" type="button" hidden>Logout</button>
+    </div>
+</header>
+
+<main>
+    <section class="panel auth-panel" id="authPanel">
+        <div class="auth-header">
+            <h2>User</h2>
+            <div class="auth-toolbar">
+                <div class="auth-switch" role="group" aria-label="Authentifizierung">
+                    <button type="button" class="auth-tab" data-auth-target="login" aria-pressed="true">Login</button>
+                    <button type="button" class="auth-tab" data-auth-target="register" aria-pressed="false">Register</button>
+                </div>
+            </div>
+        </div>
+        <form id="loginForm" class="auth-form" data-auth-form="login" autocomplete="on">
+            <h3>Login</h3>
+            <label for="loginUsername">Username</label>
+            <input id="loginUsername" name="username" autocomplete="section-login username" required maxlength="80">
+            <label for="loginPassword">Passwort</label>
+            <div class="password-field">
+                <input id="loginPassword" name="password" type="password" autocomplete="section-login current-password" required maxlength="255">
+                <button
+                    type="button"
+                    class="password-toggle"
+                    data-password-toggle
+                    data-password-input="loginPassword"
+                    title="Passwort anzeigen"
+                    aria-label="Passwort anzeigen"
+                    aria-pressed="false"
+                ></button>
+            </div>
+            <button>Login</button>
+        </form>
+
+        <form id="createUserForm" class="auth-form" data-auth-form="register" autocomplete="on" hidden>
+            <h3>Register</h3>
+            <label for="registerUsername">Username</label>
+            <input id="registerUsername" name="username" autocomplete="section-register username" required maxlength="80">
+            <label for="registerPassword">Passwort</label>
+            <div class="password-field">
+                <input id="registerPassword" name="password" type="password" autocomplete="section-register new-password" required maxlength="255">
+                <button
+                    type="button"
+                    class="password-toggle"
+                    data-password-toggle
+                    data-password-input="registerPassword"
+                    title="Passwort anzeigen"
+                    aria-label="Passwort anzeigen"
+                    aria-pressed="false"
+                ></button>
+            </div>
+            <button>Registrieren</button>
+        </form>
+    </section>
+
+    <section class="panel" data-auth-required hidden>
+        <h2>Issue anlegen</h2>
+        <form id="createIssueForm" class="issue-form">
+            <label>Author User ID <input name="authorUserId" type="number" required min="1"></label>
+            <label>Worker User IDs, kommasepariert <input name="workerUserIds" placeholder="1,2,3"></label>
+            <label>Priority <input name="priority" type="number" min="1" max="5" value="3" required></label>
+            <label>Title <input name="title" required maxlength="200"></label>
+            <label>Description <textarea name="description" required maxlength="20000"></textarea></label>
+            <button>Issue anlegen</button>
+        </form>
+    </section>
+
+    <section class="panel" data-auth-required hidden>
+        <div class="toolbar">
+            <h2>Issues</h2>
+            <label>Sortierung
+                <select id="sortSelect">
+                    <option value="id">ID</option>
+                    <option value="author">Autor</option>
+                    <option value="priority">Priorität</option>
+                </select>
+            </label>
+            <label>Richtung
+                <select id="directionSelect">
+                    <option value="asc">Aufsteigend</option>
+                    <option value="desc">Absteigend</option>
+                </select>
+            </label>
+            <button id="reloadIssuesButton">Neu laden</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Autor</th>
+                <th>Worker</th>
+                <th>Titel</th>
+                <th>Priorität</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="issueTableBody"></tbody>
+        </table>
+    </section>
+
+    <section class="panel" id="editPanel" data-auth-required hidden>
+        <h2>Issue bearbeiten</h2>
+        <form id="editIssueForm" class="issue-form">
+            <input name="id" type="hidden">
+            <label>Worker User IDs, kommasepariert <input name="workerUserIds"></label>
+            <label>Title <input name="title" required maxlength="200"></label>
+            <label>Description <textarea name="description" required maxlength="20000"></textarea></label>
+            <button>Speichern</button>
+        </form>
+    </section>
+
+    <section id="messageBox"></section>
+</main>
+
+<footer>Plain HTML5 / ES6 / CSS3, served by Spring Boot static resources.</footer>
+<script src="app.js" type="module"></script>
+</body>
+</html>
