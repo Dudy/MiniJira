@@ -434,6 +434,91 @@ button:hover {
     margin-right: auto;
 }
 
+.filter-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.8rem;
+}
+
+.filter-control {
+    position: relative;
+    flex: 1 1 12rem;
+    min-width: 11rem;
+    max-width: 18rem;
+}
+
+button.filter-button {
+    width: 100%;
+    box-sizing: border-box;
+    background: white;
+    color: #1f2937;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: space-between;
+    padding: 0.55rem 0.75rem;
+    align-self: stretch;
+}
+
+button.filter-button:hover,
+button.filter-button:focus-visible,
+button.filter-button[aria-expanded="true"] {
+    background: #eff6ff;
+    border-color: #93c5fd;
+}
+
+button.filter-button:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 1px;
+}
+
+.filter-label {
+    font-weight: 600;
+}
+
+.filter-summary {
+    margin-left: auto;
+    color: #64748b;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.filter-popover {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    z-index: 25;
+    min-width: 100%;
+    max-width: min(18rem, calc(100vw - 2rem));
+    max-height: 16rem;
+    overflow: auto;
+    padding: 0.35rem;
+    border: 1px solid #dbe3ee;
+    border-radius: 0.55rem;
+    background: white;
+    box-shadow: 0 18px 40px rgb(15 23 42 / 18%);
+}
+
+.filter-popover .filter-option {
+    border-radius: 0.35rem;
+    padding: 0.25rem 0.45rem;
+}
+
+.filter-popover .filter-option:hover {
+    background: #eff6ff;
+}
+
+.filter-popover .filter-option-all {
+    font-weight: 700;
+}
+
+.filter-popover .filter-option input[type="checkbox"] {
+    accent-color: #2563eb;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -445,6 +530,50 @@ th, td {
     border-bottom: 1px solid #e5e7eb;
     padding: 0.6rem;
     vertical-align: top;
+}
+
+th {
+    padding: 0;
+}
+
+button.sort-header {
+    width: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    align-self: stretch;
+}
+
+button.sort-header:hover,
+button.sort-header:focus-visible,
+button.sort-header[data-active="true"] {
+    background: #eff6ff;
+}
+
+button.sort-header:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: -2px;
+}
+
+.sort-indicator {
+    min-width: 1ch;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.95em;
+    line-height: 1;
+}
+
+button.sort-header[data-active="true"] .sort-indicator {
+    color: #2563eb;
 }
 
 .issue-row {

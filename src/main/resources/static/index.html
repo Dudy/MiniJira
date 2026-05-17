@@ -94,30 +94,47 @@
     <section class="panel" data-auth-required hidden id="overviewPanel">
         <div class="toolbar">
             <h2>Übersicht</h2>
-            <label>Sortierung
-                <select id="sortSelect">
-                    <option value="id">ID</option>
-                    <option value="author">Autor</option>
-                    <option value="priority">Priorität</option>
-                </select>
-            </label>
-            <label>Richtung
-                <select id="directionSelect">
-                    <option value="asc">Aufsteigend</option>
-                    <option value="desc">Absteigend</option>
-                </select>
-            </label>
-            <button id="reloadIssuesButton">Neu laden</button>
+            <button id="reloadIssuesButton" type="button">Neu laden</button>
+        </div>
+        <div class="filter-toolbar" aria-label="Filter">
+            <div class="filter-control" data-filter-field="author">
+                <button type="button" class="filter-button" data-filter-button aria-haspopup="true" aria-expanded="false" aria-controls="authorFilterMenu">
+                    <span class="filter-label">Autor</span>
+                    <span class="filter-summary" data-filter-summary>alle</span>
+                </button>
+                <div id="authorFilterMenu" class="filter-popover" data-filter-menu hidden></div>
+            </div>
+            <div class="filter-control" data-filter-field="worker">
+                <button type="button" class="filter-button" data-filter-button aria-haspopup="true" aria-expanded="false" aria-controls="workerFilterMenu">
+                    <span class="filter-label">Worker</span>
+                    <span class="filter-summary" data-filter-summary>alle</span>
+                </button>
+                <div id="workerFilterMenu" class="filter-popover" data-filter-menu hidden></div>
+            </div>
+            <div class="filter-control" data-filter-field="status">
+                <button type="button" class="filter-button" data-filter-button aria-haspopup="true" aria-expanded="false" aria-controls="statusFilterMenu">
+                    <span class="filter-label">Status</span>
+                    <span class="filter-summary" data-filter-summary>alle</span>
+                </button>
+                <div id="statusFilterMenu" class="filter-popover" data-filter-menu hidden></div>
+            </div>
+            <div class="filter-control" data-filter-field="priority">
+                <button type="button" class="filter-button" data-filter-button aria-haspopup="true" aria-expanded="false" aria-controls="priorityFilterMenu">
+                    <span class="filter-label">Priorität</span>
+                    <span class="filter-summary" data-filter-summary>alle</span>
+                </button>
+                <div id="priorityFilterMenu" class="filter-popover" data-filter-menu hidden></div>
+            </div>
         </div>
         <table>
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Autor</th>
-                <th>Worker</th>
-                <th>Titel</th>
-                <th>Status</th>
-                <th>Priorität</th>
+                <th scope="col"><button type="button" class="sort-header" data-sort-field="id">ID <span class="sort-indicator" aria-hidden="true"></span></button></th>
+                <th scope="col"><button type="button" class="sort-header" data-sort-field="author">Autor <span class="sort-indicator" aria-hidden="true"></span></button></th>
+                <th scope="col"><button type="button" class="sort-header" data-sort-field="worker">Worker <span class="sort-indicator" aria-hidden="true"></span></button></th>
+                <th scope="col"><button type="button" class="sort-header" data-sort-field="title">Titel <span class="sort-indicator" aria-hidden="true"></span></button></th>
+                <th scope="col"><button type="button" class="sort-header" data-sort-field="status">Status <span class="sort-indicator" aria-hidden="true"></span></button></th>
+                <th scope="col"><button type="button" class="sort-header" data-sort-field="priority">Priorität <span class="sort-indicator" aria-hidden="true"></span></button></th>
             </tr>
             </thead>
             <tbody id="issueTableBody"></tbody>
